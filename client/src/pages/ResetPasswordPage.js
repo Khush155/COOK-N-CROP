@@ -10,8 +10,7 @@ import {
   Alert,
   Stack,
   Avatar,
-  useMediaQuery,
-  useTheme
+  useMediaQuery
 } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { resetPassword } from '../services/authService';

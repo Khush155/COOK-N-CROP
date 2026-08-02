@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Typography, Alert, Table, TableBody, TableCell, Box, Pagination,
-  TableContainer, TableHead, TableRow, Paper, Avatar, Slider, Container,
-  Button, Chip, Stack, Grid, Card, CardContent, LinearProgress, 
+  Typography, Alert, Table, TableBody, TableCell, Box, Pagination, TableHead, TableRow, Paper, Avatar, Container,
+  Button, Chip, Grid, Card, CardContent, 
   FormControl, InputLabel, Select, MenuItem, TextField, IconButton,
-  Dialog, DialogTitle, DialogContent, DialogActions, useTheme, alpha
+  Dialog, DialogTitle, DialogContent, DialogActions, alpha
 } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import adminService from '../../services/adminService';

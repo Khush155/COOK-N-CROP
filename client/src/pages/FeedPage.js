@@ -27,7 +27,6 @@ import {
   ListItemAvatar,
   ListItemText,
   Collapse,
-  useTheme,
   InputAdornment,
   useMediaQuery,
 } from "@mui/material";
@@ -49,7 +48,6 @@ import {
 } from "@mui/icons-material";
 import communityService from '../services/communityService';
 import userService from '../services/userService';
-import groupService from '../services/groupService';
 import PostCard from '../components/PostCard';
 import Loader from '../custom_components/Loader';
 
@@ -147,6 +145,7 @@ const FeedPage = () => {
     if (user) {
       fetchRecommendations();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sort, debouncedSearchTerm, selectedTags, contentFilter, prepTime, servings, quickCook, user, fetchFeed]);
 
   // Set up intersection observer for infinite scroll
@@ -236,6 +235,7 @@ const FeedPage = () => {
       console.log('Fetching recommendations for user:', user); // Debug log
       fetchRecommendations();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const fetchRecommendations = async () => {

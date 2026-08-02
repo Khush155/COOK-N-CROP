@@ -1,131 +1,118 @@
 import { createTheme, responsiveFontSizes } from "@mui/material/styles";
+
 const themes = {
-  royalAmethyst: {
+  // --- ☀️ LIGHT THEMES ---
+  harvestLuxe: {
     palette: {
-      mode: "dark",
-      primary: { main: "#7b2cbf", dark: "#5e2191", contrastText: "#fff" },
-      secondary: { main: "#f1c40f", dark: "#c09d0c", contrastText: "#000" },
-      background: { default: "#14101b", paper: "#24202b" },
-      text: { primary: "#e9d8fd", secondary: "#c3a6e4" },
+      mode: "light",
+      primary: { main: "#2c6e49", light: "#3b8e5f", dark: "#1c4930", contrastText: "#ffffff" },
+      secondary: { main: "#d97706", light: "#f59e0b", dark: "#b45309", contrastText: "#ffffff" },
+      background: { default: "#f8fafc", paper: "#ffffff" },
+      text: { primary: "#0f172a", secondary: "#475569" },
+      gradient: "linear-gradient(135deg, #2c6e49 0%, #1c4930 100%)",
     },
-    typography: { fontFamily: "Playfair Display, serif", button: { textTransform: "none", fontWeight: 700 } },
+    typography: { fontFamily: "Inter, sans-serif", button: { textTransform: "none", fontWeight: 700 } },
   },
   royalAmethystLight: {
     palette: {
       mode: "light",
-      primary: { main: "#7b2cbf", dark: "#5e2191", contrastText: "#fff" },
-      secondary: { main: "#e5a50a", dark: "#c09d0c", contrastText: "#000" },
+      primary: { main: "#7b2cbf", dark: "#5e2191", contrastText: "#ffffff" },
+      secondary: { main: "#e5a50a", dark: "#c09d0c", contrastText: "#000000" },
       background: { default: "#f8f5fe", paper: "#ffffff" },
       text: { primary: "#24202b", secondary: "#5a5361" },
     },
     typography: { fontFamily: "Playfair Display, serif", button: { textTransform: "none", fontWeight: 700 } },
   },
-  crimsonNight: {
-    palette: {
-      mode: "dark",
-      primary: { main: "#c0392b", dark: "#a93226", contrastText: "#fff" },
-      secondary: { main: "#bdc3c7", dark: "#95a5a6", contrastText: "#000" },
-      background: { default: "#1e1e1e", paper: "#2b2b2b" },
-      text: { primary: "#ecf0f1", secondary: "#bdc3c7" },
-    },
-    typography: { fontFamily: "Merriweather, serif", button: { textTransform: "none", fontWeight: 700 } },
-  },
-  ivoryAndInk: {
+  nordicMist: {
     palette: {
       mode: "light",
-      primary: { main: "#2c3e50", dark: "#233140", contrastText: "#fff" },
-      secondary: { main: "#e74c3c", dark: "#c0392b", contrastText: "#fff" },
-      background: { default: "#fdfdfd", paper: "#ffffff" },
-      text: { primary: "#2c3e50", secondary: "#7f8c8d" },
+      primary: { main: "#0f766e", light: "#14b8a6", dark: "#115e59", contrastText: "#ffffff" },
+      secondary: { main: "#0284c7", light: "#38bdf8", dark: "#0369a1", contrastText: "#ffffff" },
+      background: { default: "#f0fdfa", paper: "#ffffff" },
+      text: { primary: "#042f2e", secondary: "#134e4a" },
+      gradient: "linear-gradient(135deg, #0f766e 0%, #0284c7 100%)",
     },
     typography: { fontFamily: "Inter, sans-serif", button: { textTransform: "none", fontWeight: 700 } },
   },
-  oliveGrove: {
+  sunsetGlow: {
     palette: {
       mode: "light",
-      primary: { main: "#556b2f", dark: "#425425", contrastText: "#fff" },
-      secondary: { main: "#c89f62", dark: "#a07f4e", contrastText: "#000" },
-      background: { default: "#f5f5f0", paper: "#ffffff" },
-      text: { primary: "#3d3c37", secondary: "#6b6962" },
+      primary: { main: "#c85a32", light: "#d67a58", dark: "#9e3d1b", contrastText: "#ffffff" },
+      secondary: { main: "#d99b26", light: "#e5b152", dark: "#a87515", contrastText: "#ffffff" },
+      background: { default: "#faf6f0", paper: "#ffffff" },
+      text: { primary: "#2d2019", secondary: "#5c483e" },
+      gradient: "linear-gradient(135deg, #c85a32 0%, #9e3d1b 100%)",
     },
-    typography: { fontFamily: "Lato, sans-serif", button: { textTransform: "none", fontWeight: 700 } },
+    typography: { fontFamily: "Inter, sans-serif", button: { textTransform: "none", fontWeight: 700 } },
   },
-  cosmicFusion: {
+  oceanBreeze: {
+    palette: {
+      mode: "light",
+      primary: { main: "#1e40af", light: "#3b82f6", dark: "#1e3a8a", contrastText: "#ffffff" },
+      secondary: { main: "#0d9488", light: "#14b8a6", dark: "#0f766e", contrastText: "#ffffff" },
+      background: { default: "#f0f7ff", paper: "#ffffff" },
+      text: { primary: "#0f172a", secondary: "#334155" },
+      gradient: "linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)",
+    },
+    typography: { fontFamily: "Inter, sans-serif", button: { textTransform: "none", fontWeight: 700 } },
+  },
+
+  // --- 🌙 DARK THEMES ---
+  harvestLuxeDark: {
     palette: {
       mode: "dark",
-      primary: { main: "#9d4edd", dark: "#7b2cbf", contrastText: "#fff" },
-      secondary: { main: "#00fddc", dark: "#00c4ac", contrastText: "#000" },
-      background: { default: "#10002b", paper: "#240046" },
-      text: { primary: "#e0e0ff", secondary: "#a0a0cc" },
-      gradient: "linear-gradient(135deg, #9d4edd 0%, #00fddc 100%)",
+      primary: { main: "#38764e", light: "#4c9366", dark: "#234d32", contrastText: "#ffffff" },
+      secondary: { main: "#c68a32", light: "#da9f47", dark: "#9b681e", contrastText: "#000000" },
+      background: { default: "#0f172a", paper: "#1e293b" },
+      text: { primary: "#f1f5f9", secondary: "#94a3b8" },
+      gradient: "linear-gradient(135deg, #234d32 0%, #0f172a 100%)",
     },
-    typography: { fontFamily: "Poppins, sans-serif", button: { textTransform: "none", fontWeight: 700 } },
+    typography: { fontFamily: "Inter, sans-serif", button: { textTransform: "none", fontWeight: 700 } },
   },
-  cosmicFusionLight: {
-    palette: {
-      mode: "light",
-      primary: { main: "#9d4edd", dark: "#7b2cbf", contrastText: "#fff" },
-      secondary: { main: "#00fddc", dark: "#00c4ac", contrastText: "#000" },
-      background: { default: "#f7f2ff", paper: "#ffffff" },
-      text: { primary: "#240046", secondary: "#5c2799" },
-      gradient: "linear-gradient(135deg, #9d4edd 0%, #00fddc 100%)",
-    },
-    typography: { fontFamily: "Poppins, sans-serif", button: { textTransform: "none", fontWeight: 700 } },
-  },
-  mangoSunrise: {
-    palette: {
-      mode: "light",
-      primary: { main: "#f77f00", dark: "#d35400", contrastText: "#fff" },
-      secondary: { main: "#fcbf49", dark: "#e8a825", contrastText: "#000" },
-      background: { default: "#fffbeb", paper: "#ffffff" },
-      text: { primary: "#331800", secondary: "#663d1a" },
-      gradient: "linear-gradient(135deg, #fcbf49 0%, #f77f00 100%)",
-    },
-    typography: { fontFamily: "Lato, sans-serif", button: { textTransform: "none", fontWeight: 700 } },
-  },
-  forestMist: {
-    palette: {
-      mode: "light",
-      primary: { main: "#2d6a4f", dark: "#1b4332", contrastText: "#fff" },
-      secondary: { main: "#95d5b2", dark: "#74b49b", contrastText: "#000" },
-      background: { default: "#f7f9f7", paper: "#ffffff" },
-      text: { primary: "#24202b", secondary: "#5a5361" },
-      gradient: "linear-gradient(135deg, #95d5b2 0%, #2d6a4f 100%)",
-    },
-    typography: { fontFamily: "Nunito, sans-serif", button: { textTransform: "none", fontWeight: 700 } },
-  },
-  sapphireAndSilver: {
+  royalAmethyst: {
     palette: {
       mode: "dark",
-      primary: { main: "#0f4c75", dark: "#0a3a5a", contrastText: "#fff" },
-      secondary: { main: "#bbe1fa", dark: "#a1c4d6", contrastText: "#000" },
-      background: { default: "#101820", paper: "#1B262C" },
-      text: { primary: "#f0f8ff", secondary: "#bbe1fa" },
+      primary: { main: "#7b2cbf", dark: "#5e2191", contrastText: "#ffffff" },
+      secondary: { main: "#f1c40f", dark: "#c09d0c", contrastText: "#000000" },
+      background: { default: "#14101b", paper: "#24202b" },
+      text: { primary: "#e9d8fd", secondary: "#c3a6e4" },
     },
     typography: { fontFamily: "Playfair Display, serif", button: { textTransform: "none", fontWeight: 700 } },
   },
-  emeraldAndGold: {
+  obsidianMidnight: {
     palette: {
       mode: "dark",
-      primary: { main: "#1e4620", dark: "#143016", contrastText: "#fff" },
-      secondary: { main: "#ffd700", dark: "#cca300", contrastText: "#000" },
-      background: { default: "#001000", paper: "#002000" },
-      text: { primary: "#d4eada", secondary: "#a7d7a7" },
+      primary: { main: "#6366f1", light: "#818cf8", dark: "#4338ca", contrastText: "#ffffff" },
+      secondary: { main: "#f43f5e", light: "#fb7185", dark: "#e11d48", contrastText: "#ffffff" },
+      background: { default: "#0b0f19", paper: "#161f32" },
+      text: { primary: "#f3f4f6", secondary: "#9ca3af" },
+      gradient: "linear-gradient(135deg, #4338ca 0%, #0b0f19 100%)",
     },
-    typography: { fontFamily: "Playfair Display, serif", button: { textTransform: "none", fontWeight: 700 } },
+    typography: { fontFamily: "Inter, sans-serif", button: { textTransform: "none", fontWeight: 700 } },
   },
-  rubyAndPearl: {
+  espressoDark: {
     palette: {
-      mode: "light",
-      primary: { main: "#8B0000", dark: "#6e0000", contrastText: "#fff" },
-      secondary: { main: "#a9a9a9", dark: "#696969", contrastText: "#000" },
-      background: { default: "#fff8f8", paper: "#ffffff" },
-      text: { primary: "#24202b", secondary: "#5a5361" },
+      mode: "dark",
+      primary: { main: "#d97706", light: "#f59e0b", dark: "#b45309", contrastText: "#000000" },
+      secondary: { main: "#ea580c", light: "#f97316", dark: "#c2410c", contrastText: "#ffffff" },
+      background: { default: "#181210", paper: "#251c18" },
+      text: { primary: "#fef3c7", secondary: "#d97706" },
+      gradient: "linear-gradient(135deg, #78350f 0%, #181210 100%)",
     },
-    typography: { fontFamily: "Playfair Display, serif", button: { textTransform: "none", fontWeight: 700 } },
+    typography: { fontFamily: "Inter, sans-serif", button: { textTransform: "none", fontWeight: 700 } },
+  },
+  abyssalTeal: {
+    palette: {
+      mode: "dark",
+      primary: { main: "#0d9488", light: "#14b8a6", dark: "#0f766e", contrastText: "#ffffff" },
+      secondary: { main: "#38bdf8", light: "#7dd3fc", dark: "#0284c7", contrastText: "#000000" },
+      background: { default: "#091e23", paper: "#112d34" },
+      text: { primary: "#e0f2fe", secondary: "#7dd3fc" },
+      gradient: "linear-gradient(135deg, #0f766e 0%, #091e23 100%)",
+    },
+    typography: { fontFamily: "Inter, sans-serif", button: { textTransform: "none", fontWeight: 700 } },
   },
 };
-
 
 const fonts = [
   "Roboto, Arial, sans-serif",
@@ -142,9 +129,72 @@ const fonts = [
   "Inter, sans-serif",
 ];
 
-export function themeFromKey(key) {
-  if (!themes[key]) key = "forestMist";
-  let theme = createTheme(themes[key]);
+export function themeFromKey(key, fontFamilyOverride) {
+  if (!themes[key]) key = "harvestLuxe";
+  const baseThemeConfig = themes[key];
+  const font = fontFamilyOverride || baseThemeConfig.typography?.fontFamily || "Inter, sans-serif";
+
+  let theme = createTheme({
+    ...baseThemeConfig,
+    typography: {
+      fontFamily: font,
+      allVariants: { fontFamily: font },
+      button: { textTransform: "none", fontWeight: 700, fontFamily: font },
+    },
+    components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          body: {
+            fontFamily: font,
+          },
+        },
+      },
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            fontFamily: font,
+            textTransform: "none",
+          },
+        },
+      },
+      MuiTypography: {
+        styleOverrides: {
+          root: {
+            fontFamily: font,
+          },
+        },
+      },
+      MuiInputBase: {
+        styleOverrides: {
+          root: {
+            fontFamily: font,
+          },
+        },
+      },
+      MuiMenuItem: {
+        styleOverrides: {
+          root: {
+            fontFamily: font,
+          },
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            fontFamily: font,
+          },
+        },
+      },
+      MuiTab: {
+        styleOverrides: {
+          root: {
+            fontFamily: font,
+            textTransform: "none",
+          },
+        },
+      },
+    },
+  });
   return responsiveFontSizes(theme);
 }
 

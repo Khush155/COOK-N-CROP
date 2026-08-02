@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Paper, Avatar, Typography, useTheme } from '@mui/material';
-import { FormatQuote } from '@mui/icons-material';
 
 // Simple utility function to join class names (replacing the cn function)
 const cn = (...classes) => classes.filter(Boolean).join(' ');

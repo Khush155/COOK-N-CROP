@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Box, Typography, Button, Container, Grid, Paper, alpha, Snackbar, Alert, Divider, Avatar, Stack, useMediaQuery } from '@mui/material';
+import React, { useState, useEffect, useRef } from 'react';
+import { Box, Typography, Button, Container, alpha, Snackbar, Alert, Divider, Stack, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
-import { ArrowForward, FormatQuote, MenuBook, LocalShipping, Shield, Timer, EmojiEvents, Verified, Star, CheckCircle } from '@mui/icons-material';
+import { ArrowForward } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../config/axios';
 import ProminentCTA from '../components/ProminentCTA';

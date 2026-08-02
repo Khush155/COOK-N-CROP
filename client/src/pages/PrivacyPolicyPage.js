@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Container, Typography, Paper, Link, Accordion, AccordionSummary, AccordionDetails, List, ListItem, alpha, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Container, Typography, Paper, Link, Accordion, AccordionSummary, AccordionDetails, List, ListItem, alpha, useMediaQuery } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';

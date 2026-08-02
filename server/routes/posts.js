@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const { protect, authorize, optionalAuth } = require('../middleware/auth');
 const { reportValidation, validate } = require('../middleware/validation');
 const Post = require('../models/Post');
@@ -184,9 +185,12 @@ router.get('/', optionalAuth, async (req, res) => {
     const matchConditions = {};
 
     // Exclude posts from users that the current user has blocked
-    if (req.user) {
-      const currentUser = await User.findById(req.user.id).select('blockedUsers');
-      matchConditions.user = { $nin: currentUser.blockedUsers };
+    if (req.user && (req.user._id || req.user.id)) {
+      const userId = req.user._id || req.user.id;
+      const currentUser = await User.findById(userId).select('blockedUsers');
+      if (currentUser && currentUser.blockedUsers && currentUser.blockedUsers.length > 0) {
+        matchConditions.user = { $nin: currentUser.blockedUsers };
+      }
     }
 
     if (isRecipe === 'true') {
@@ -270,7 +274,8 @@ router.get('/', optionalAuth, async (req, res) => {
     // Add lookups and final shaping
     pipeline.push({ $lookup: { from: 'users', localField: 'user', foreignField: '_id', as: 'user' } });
     pipeline.push({ $lookup: { from: 'groups', localField: 'group', foreignField: '_id', as: 'group' } }); // Populate group info
-    pipeline.push({ $unwind: '$user' }, { $unwind: '$group' });
+    pipeline.push({ $unwind: { path: '$user', preserveNullAndEmptyArrays: true } });
+    pipeline.push({ $unwind: { path: '$group', preserveNullAndEmptyArrays: true } });
 
     // Final projection stage
     const projectStage = {
@@ -346,6 +351,25 @@ router.get('/featured-recipes', async (req, res) => {
     res.json(recipes);
   } catch (error) {
     console.error('Get featured recipes error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Get most liked posts/recipes
+// @route   GET /api/posts/most-liked
+// @access  Public
+router.get('/most-liked', async (req, res) => {
+  try {
+    const limitNum = Number(req.query.limit) || 12;
+    const posts = await Post.find({})
+      .sort({ voteScore: -1, createdAt: -1 })
+      .limit(limitNum)
+      .populate('user', 'username profilePic')
+      .populate('group', 'name slug');
+
+    res.json(posts);
+  } catch (error) {
+    console.error('Get most liked posts error:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 });
@@ -497,6 +521,9 @@ router.put('/:id/pin', protect, async (req, res) => {
 // @access  Public
 router.get('/:id', optionalAuth, async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Invalid Post ID' });
+    }
     const post = await Post.findById(req.params.id)
       .populate('user', 'username profilePic')
       .populate('group', 'name slug rules moderators creator') // Populate group with rules

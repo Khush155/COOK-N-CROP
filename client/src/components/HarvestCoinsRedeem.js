@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, Chip, Alert, useTheme, alpha, Stack, Card, CardContent, CardActions, Divider, LinearProgress } from '@mui/material';
+import { Box, Typography, Button, Chip, Alert, useTheme, alpha, Card, CardContent, CardActions, Divider, LinearProgress } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { getHarvestCoinsBalance } from '../services/loyaltyService';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';

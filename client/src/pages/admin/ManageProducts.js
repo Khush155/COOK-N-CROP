@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box, Typography, Button, Alert, Table, TableBody, TableCell, TextField, Avatar,
-  Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
-  TableContainer, TableHead, TableRow, Paper, IconButton, Tooltip, Pagination, Checkbox, Container, Stack, Chip, Grid,
-  Input, FormControl, InputLabel, Select, MenuItem, OutlinedInput, Menu, ListItemIcon, ListItemText
+  Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TableHead, TableRow, Paper, IconButton, Tooltip, Pagination, Checkbox, Container, Stack, Chip,
+  Input, FormControl, InputLabel, Select, MenuItem, Menu, ListItemIcon, ListItemText
 } from '@mui/material';
 import { useTheme, alpha } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
@@ -13,7 +12,6 @@ import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -243,29 +241,79 @@ const ManageProducts = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: { xs: 2, sm: 3, md: 4 } }}>
-      <Paper sx={{ p: { xs: 2, sm: 3, md: 4 }, mb: 4, borderRadius: 3, border: `1px solid ${theme.palette.divider}` }}>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 800, mb: 1, fontFamily: theme.typography.fontFamily, fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' } }}>
-          Manage Products
-        </Typography>
-        <Typography variant="h6" color="text.secondary" sx={{ fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
-          Add, edit, and organize all products in your store.
-        </Typography>
+    <Container maxWidth="xl" disableGutters sx={{ py: { xs: 2, sm: 3, md: 4 } }}>
+      {/* Hero Header Banner */}
+      <Paper 
+        elevation={0}
+        sx={{ 
+          p: { xs: 2.5, sm: 3.5 }, 
+          mb: 4, 
+          borderRadius: 4, 
+          border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+          background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.12)}, ${alpha(theme.palette.background.paper, 0.95)})`,
+          backdropFilter: 'blur(16px)',
+          boxShadow: `0 8px 32px -4px ${alpha(theme.palette.primary.main, 0.1)}`,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 2
+        }}
+      >
+        <Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
+            <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.15), color: 'primary.main', width: 44, height: 44 }}>
+              <Inventory2Icon />
+            </Avatar>
+            <Typography variant="h4" component="h1" sx={{ fontWeight: 800, fontFamily: theme.typography.fontFamily, fontSize: { xs: '1.5rem', sm: '1.85rem', md: '2.25rem' }, letterSpacing: '-0.02em' }}>
+              Product Inventory
+            </Typography>
+          </Box>
+          <Typography variant="body1" color="text.secondary" sx={{ fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.85rem', sm: '0.95rem' } }}>
+            Add, update inventory, manage pricing, and organize catalog items.
+          </Typography>
+        </Box>
+        <Stack direction="row" spacing={1.5} flexWrap="wrap">
+          <Button
+            variant="outlined"
+            startIcon={<UploadFileIcon />}
+            onClick={handleOpenCsvImportDialog}
+            sx={{ borderRadius: 2.5, fontWeight: 700, textTransform: 'none', px: 2, py: 1, fontFamily: theme.typography.fontFamily }}
+          >
+            Import CSV
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenDialog()}
+            sx={{
+              borderRadius: 2.5,
+              fontWeight: 700,
+              textTransform: 'none',
+              px: 2.5,
+              py: 1,
+              fontFamily: theme.typography.fontFamily,
+              background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+              boxShadow: `0 4px 14px ${alpha(theme.palette.primary.main, 0.35)}`,
+            }}
+          >
+            Add Product
+          </Button>
+        </Stack>
       </Paper>
 
-      <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, border: `1px solid ${theme.palette.divider}` }}>
+      <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 4, border: `1px solid ${alpha(theme.palette.divider, 0.6)}`, boxShadow: `0 4px 20px ${alpha(theme.palette.common.black, 0.04)}` }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: { xs: 1, sm: 2 } }}>
           <Stack direction="row" spacing={{ xs: 1, sm: 2 }} sx={{ flexGrow: 1, flexWrap: 'wrap', gap: { xs: 1, sm: 2 }, alignItems: 'center' }}>
             <TextField
-              label="Search by Name or Description"
+              label="Search Product Name"
               variant="outlined"
               size="small"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               sx={{ 
-                minWidth: { xs: '100%', sm: 200 },
-                '& .MuiOutlinedInput-root': { borderRadius: 2 },
-                height: { sm: 40 } // Fixed height for laptop view
+                minWidth: { xs: '100%', sm: 260 },
+                '& .MuiOutlinedInput-root': { borderRadius: 3 }
               }}
               InputLabelProps={{ sx: { fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.75rem', sm: '1rem' } } }}
               inputProps={{ sx: { fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.75rem', sm: '1rem' } } }}
@@ -366,7 +414,7 @@ const ManageProducts = () => {
             <Box sx={{ overflowX: 'auto', width: '100%' }}>
               <Table sx={{ minWidth: { xs: 600, sm: 800, md: 1000 } }}>
                 <TableHead>
-                  <TableRow>
+                  <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.04) }}>
                     <TableCell padding="checkbox">
                       <Checkbox
                         indeterminate={numSelected > 0 && numSelected < rowCount}

@@ -34,8 +34,6 @@ import {
   useMediaQuery, // Add this import for mobile detection
 } from "@mui/material";
 import {
-  Forum as ForumIcon,
-  NewReleases as NewReleasesIcon,
   TrendingUp as TrendingUpIcon,
   Whatshot as WhatshotIcon,
   Close as CloseIcon,
@@ -46,16 +44,13 @@ import {
   GroupAdd as GroupAddIcon,
   Rule as RuleIcon,
   PrivacyTip as PrivacyTipIcon,
-  FilterList as FilterListIcon,
   ExpandLess,
   ExpandMore,
   Info as InfoIcon,
   ContactSupport as ContactSupportIcon,
   Help as HelpIcon,
   Gavel as GavelIcon,
-  Security as SecurityIcon,
   Campaign as CampaignIcon,
-  EmojiEvents as EmojiEventsIcon,
   Feedback as FeedbackIcon,
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
@@ -63,10 +58,7 @@ import {
   ViewList as ViewListIcon,
   Apps as AppsIcon,
   Group as GroupIcon,
-  Notifications as NotificationsIcon,
   Search as SearchIcon,
-  Restaurant as RestaurantIcon,
-  Chat as ChatIcon,
 } from "@mui/icons-material";
 
 import communityService from "../services/communityService";
@@ -78,7 +70,7 @@ import Loader from "../custom_components/Loader";
 // Notification badge component
 const NotificationBadge = ({ count }) => {
   if (count <= 0) return null;
-  
+
   return (
     <Box
       sx={{
@@ -116,8 +108,8 @@ const GroupCard = ({ group }) => {
         textDecoration: 'none',
         color: 'inherit',
         transition: 'box-shadow .2s, border-color .2s',
-        '&:hover': { 
-          boxShadow: theme.shadows[3], 
+        '&:hover': {
+          boxShadow: theme.shadows[3],
           borderColor: 'primary.light',
           transform: 'translateY(-2px)'
         },
@@ -168,23 +160,23 @@ export default function Community() {
   const [groups, setGroups] = useState([]);
   const [myGroups, setMyGroups] = useState([]); // New state for user's groups
   const [pendingRequests, setPendingRequests] = useState({}); // State for pending join requests
-  
+
   // State for collapsible sections
   const [communityOpen, setCommunityOpen] = useState(true);
   const [resourcesOpen, setResourcesOpen] = useState(true);
   const [supportOpen, setSupportOpen] = useState(true);
   const [myGroupsOpen, setMyGroupsOpen] = useState(true); // New state for My Groups section
-  
+
   // State for left sidebar visibility - closed by default on mobile
   const [leftSidebarVisible, setLeftSidebarVisible] = useState(!isMobile);
-  
+
   // Create refs for infinite scroll
   const observer = useRef();
   const lastPostRef = useRef();
-  
+
   // Background image URL for the header
   const headerImageURL = `${process.env.PUBLIC_URL}/images/CooknCrop.png`;
-  
+
   // Modified fetchPosts function for infinite scrolling
   const fetchPosts = useCallback(async (pageToFetch = 1, append = false) => {
     try {
@@ -193,13 +185,13 @@ export default function Community() {
       } else {
         setIsLoadingMore(true);
       }
-      
+
       // Determine which page we're on
-      const currentPath = window.location.pathname;
-      
+      const currentPath = location.pathname;
+
       // Only send search term if it's not just "#" or empty
       const effectiveSearchTerm = debouncedSearchTerm && debouncedSearchTerm !== '#' ? debouncedSearchTerm : '';
-      
+
       let data;
       if (currentPath === '/community/popular') {
         // For popular page, fetch top posts
@@ -215,7 +207,7 @@ export default function Community() {
           tags: selectedTags,
           search: effectiveSearchTerm,
         });
-        
+
         // Shuffle the posts to create a randomized feed (only for first page)
         if (pageToFetch === 1) {
           data.posts = [...data.posts].sort(() => Math.random() - 0.5);
@@ -228,13 +220,13 @@ export default function Community() {
           search: effectiveSearchTerm,
         });
       }
-      
+
       if (append) {
         setPosts(prevPosts => [...prevPosts, ...data.posts]);
       } else {
         setPosts(data.posts);
       }
-      
+
       setHasMore(pageToFetch < data.pages);
       setTotalPages(data.pages);
       setPage(pageToFetch);
@@ -245,7 +237,7 @@ export default function Community() {
       setLoading(false);
       setIsLoadingMore(false);
     }
-  }, [sort, selectedTags, debouncedSearchTerm, contentFilter]);
+  }, [sort, selectedTags, debouncedSearchTerm, contentFilter, location.pathname]);
 
   // Initialize search term from URL parameters
   useEffect(() => {
@@ -267,33 +259,32 @@ export default function Community() {
 
   useEffect(() => {
     fetchPosts(1, false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [sort, selectedTags, debouncedSearchTerm, contentFilter, fetchPosts]);
+  }, [location.pathname, sort, selectedTags, debouncedSearchTerm, contentFilter, fetchPosts]);
 
   // Set up intersection observer for infinite scroll
   useEffect(() => {
     if (loading || isLoadingMore) return;
-    
+
     // Disconnect existing observer
     if (observer.current) {
       observer.current.disconnect();
     }
-    
+
     const observerCallback = (entries) => {
       if (entries[0].isIntersecting && hasMore) {
         fetchPosts(page + 1, true);
       }
     };
-    
+
     observer.current = new IntersectionObserver(observerCallback, {
       rootMargin: '100px'
     });
-    
+
     // Observe the last post element if it exists
     if (lastPostRef.current) {
       observer.current.observe(lastPostRef.current);
     }
-    
+
     return () => {
       if (observer.current) {
         observer.current.disconnect();
@@ -311,7 +302,7 @@ export default function Community() {
       try {
         const tags = await communityService.getTrendingTags(10); // Increase limit to ensure we get enough tags
         console.log('Fetched trending tags:', tags); // Debug log
-        
+
         // If no tags are returned, use default tags
         if (!tags || tags.length === 0) {
           setTrendingTags([
@@ -324,8 +315,8 @@ export default function Community() {
         } else {
           setTrendingTags(tags);
         }
-      } catch (err) { 
-        console.error("Error fetching trending tags: ", err); 
+      } catch (err) {
+        console.error("Error fetching trending tags: ", err);
         // Set some default tags for testing
         setTrendingTags([
           { tag: 'cooking', count: 15 },
@@ -361,7 +352,7 @@ export default function Community() {
       if (isAuthenticated && myGroups.length > 0) {
         const requests = {};
         let totalRequests = 0;
-        
+
         for (const group of myGroups) {
           // Check if user is a moderator for this group
           const isMod = (group.moderators && group.moderators.some(modId => modId === user.id)) || group.creator === user.id;
@@ -376,7 +367,7 @@ export default function Community() {
             }
           }
         }
-        
+
         // Check if there are new requests compared to previous state
         const previousTotal = Object.values(pendingRequests).reduce((a, b) => a + b, 0);
         if (totalRequests > previousTotal && previousTotal > 0) {
@@ -389,7 +380,7 @@ export default function Community() {
               newRequests.push({ group, count: currentCount - previousCount });
             }
           }
-          
+
           // Show notification for new requests
           let message = `You have ${totalRequests - previousTotal} new join request(s) to review`;
           if (newRequests.length === 1) {
@@ -397,23 +388,23 @@ export default function Community() {
           } else if (newRequests.length > 1) {
             message = `You have new join requests for ${newRequests.length} groups`;
           }
-          
-          setSnackbar({ 
-            open: true, 
-            message, 
-            severity: "info" 
+
+          setSnackbar({
+            open: true,
+            message,
+            severity: "info"
           });
         }
-        
+
         setPendingRequests(requests);
       }
     };
 
     fetchPendingRequests();
-    
+
     // Set up interval to check for new requests every 30 seconds
     const interval = setInterval(fetchPendingRequests, 30000);
-    
+
     return () => clearInterval(interval);
   }, [isAuthenticated, myGroups, user, pendingRequests]);
 
@@ -468,7 +459,7 @@ export default function Community() {
     if (reason === "clickaway") return;
     setSnackbar({ ...snackbar, open: false });
   };
-  
+
   const handleNotificationClick = () => {
     // Find the first group with pending requests
     const firstGroupWithRequests = myGroups.find(group => pendingRequests[group._id] > 0);
@@ -514,11 +505,11 @@ export default function Community() {
           {/* Main Navigation */}
           <List disablePadding>
             <ListItem disablePadding>
-              <ListItemButton 
+              <ListItemButton
                 onClick={() => navigate('/community')}
                 selected={window.location.pathname === '/community'}
-                sx={{ 
-                  borderRadius: 2, 
+                sx={{
+                  borderRadius: 2,
                   mb: 0.5,
                   '&.Mui-selected': {
                     backgroundColor: alpha(theme.palette.primary.main, 0.1),
@@ -531,21 +522,21 @@ export default function Community() {
                 <ListItemIcon>
                   <HomeIcon sx={{ color: theme.palette.primary.main }} />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="Home" 
-                  primaryTypographyProps={{ 
+                <ListItemText
+                  primary="Home"
+                  primaryTypographyProps={{
                     fontWeight: 600,
                     color: window.location.pathname === '/community' ? 'primary.main' : 'text.primary'
-                  }} 
+                  }}
                 />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton 
+              <ListItemButton
                 onClick={() => navigate('/community/popular')}
                 selected={window.location.pathname === '/community/popular'}
-                sx={{ 
-                  borderRadius: 2, 
+                sx={{
+                  borderRadius: 2,
                   mb: 0.5,
                   '&.Mui-selected': {
                     backgroundColor: alpha(theme.palette.primary.main, 0.1),
@@ -558,21 +549,21 @@ export default function Community() {
                 <ListItemIcon>
                   <TrendingUpIcon sx={{ color: theme.palette.primary.main }} />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="Popular" 
-                  primaryTypographyProps={{ 
+                <ListItemText
+                  primary="Popular"
+                  primaryTypographyProps={{
                     fontWeight: 600,
                     color: window.location.pathname === '/community/popular' ? 'primary.main' : 'text.primary'
-                  }} 
+                  }}
                 />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
-              <ListItemButton 
+              <ListItemButton
                 onClick={() => navigate('/community/explore-all')}
                 selected={window.location.pathname === '/community/explore-all'}
-                sx={{ 
-                  borderRadius: 2, 
+                sx={{
+                  borderRadius: 2,
                   mb: 0.5,
                   '&.Mui-selected': {
                     backgroundColor: alpha(theme.palette.primary.main, 0.1),
@@ -585,26 +576,26 @@ export default function Community() {
                 <ListItemIcon>
                   <ExploreIcon sx={{ color: theme.palette.primary.main }} />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="Explore All" 
-                  primaryTypographyProps={{ 
+                <ListItemText
+                  primary="Explore All"
+                  primaryTypographyProps={{
                     fontWeight: 600,
                     color: window.location.pathname === '/community/explore-all' ? 'primary.main' : 'text.primary'
-                  }} 
+                  }}
                 />
               </ListItemButton>
             </ListItem>
           </List>
-          
+
           <Divider sx={{ my: 2 }} />
-          
+
           {/* My Groups Section - Collapsible */}
           {isAuthenticated && myGroups.length > 0 && (
             <>
-              <ListItemButton 
+              <ListItemButton
                 onClick={() => setMyGroupsOpen(!myGroupsOpen)}
-                sx={{ 
-                  borderRadius: 2, 
+                sx={{
+                  borderRadius: 2,
                   mb: 0.5,
                   backgroundColor: myGroupsOpen ? alpha(theme.palette.info.main, 0.05) : 'transparent',
                   '&:hover': {
@@ -615,19 +606,19 @@ export default function Community() {
                 <ListItemIcon>
                   <GroupIcon sx={{ color: theme.palette.info.main }} />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="My Groups" 
-                  primaryTypographyProps={{ fontWeight: 700, color: 'info.main' }} 
+                <ListItemText
+                  primary="My Groups"
+                  primaryTypographyProps={{ fontWeight: 700, color: 'info.main' }}
                 />
                 {myGroupsOpen ? <ExpandLess /> : <ExpandMore />}
               </ListItemButton>
               <Collapse in={myGroupsOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {myGroups.slice(0, 5).map(group => (
-                    <ListItemButton 
+                    <ListItemButton
                       key={group._id}
-                      sx={{ 
-                        pl: 4, 
+                      sx={{
+                        pl: 4,
                         py: 1,
                         borderRadius: 2,
                         mb: 0.5,
@@ -639,7 +630,7 @@ export default function Community() {
                       to={`/g/${group.slug}`}
                     >
                       <ListItemIcon sx={{ minWidth: 32 }}>
-                        <Avatar 
+                        <Avatar
                           src={group.coverImage ? (group.coverImage.startsWith('http') ? group.coverImage : `${process.env.REACT_APP_API_URL}${group.coverImage}`) : '/images/default-group-cover.png'}
                           alt={group.name}
                           sx={{ width: 24, height: 24 }}
@@ -647,7 +638,7 @@ export default function Community() {
                           {group.name?.charAt(0)?.toUpperCase() || 'G'}
                         </Avatar>
                       </ListItemIcon>
-                      <ListItemText 
+                      <ListItemText
                         primary={
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <span>{group.name}</span>
@@ -672,18 +663,18 @@ export default function Community() {
                             )}
                           </Box>
                         }
-                        primaryTypographyProps={{ 
+                        primaryTypographyProps={{
                           variant: 'body2',
                           noWrap: true,
                           fontWeight: 500
-                        }} 
+                        }}
                       />
                     </ListItemButton>
                   ))}
                   {myGroups.length > 5 && (
-                    <ListItemButton 
-                      sx={{ 
-                        pl: 4, 
+                    <ListItemButton
+                      sx={{
+                        pl: 4,
                         py: 1,
                         borderRadius: 2,
                         '&:hover': {
@@ -692,28 +683,28 @@ export default function Community() {
                       }}
                       onClick={() => navigate('/community/explore')}
                     >
-                      <ListItemText 
-                        primary={`View all ${myGroups.length} groups`} 
-                        primaryTypographyProps={{ 
+                      <ListItemText
+                        primary={`View all ${myGroups.length} groups`}
+                        primaryTypographyProps={{
                           variant: 'body2',
                           fontWeight: 600,
                           color: 'primary.main'
-                        }} 
+                        }}
                       />
                     </ListItemButton>
                   )}
                 </List>
               </Collapse>
-              
+
               <Divider sx={{ my: 2 }} />
             </>
           )}
-          
+
           {/* Community Section - Collapsible */}
-          <ListItemButton 
+          <ListItemButton
             onClick={() => setCommunityOpen(!communityOpen)}
-            sx={{ 
-              borderRadius: 2, 
+            sx={{
+              borderRadius: 2,
               mb: 0.5,
               backgroundColor: communityOpen ? alpha(theme.palette.secondary.main, 0.05) : 'transparent',
               '&:hover': {
@@ -724,62 +715,62 @@ export default function Community() {
             <ListItemIcon>
               <PeopleIcon sx={{ color: theme.palette.secondary.main }} />
             </ListItemIcon>
-            <ListItemText 
-              primary="Community" 
-              primaryTypographyProps={{ fontWeight: 700, color: 'secondary.main' }} 
+            <ListItemText
+              primary="Community"
+              primaryTypographyProps={{ fontWeight: 700, color: 'secondary.main' }}
             />
             {communityOpen ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
           <Collapse in={communityOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItemButton 
-                sx={{ 
-                  pl: 4, 
+              <ListItemButton
+                sx={{
+                  pl: 4,
                   py: 1,
                   borderRadius: 2,
                   mb: 0.5,
                   '&:hover': {
                     backgroundColor: alpha(theme.palette.secondary.main, 0.05),
                   }
-                }} 
+                }}
                 component={RouterLink}
                 to="/community/create"
               >
                 <ListItemIcon>
                   <GroupAddIcon sx={{ fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="Create Group" 
-                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }} 
+                <ListItemText
+                  primary="Create Group"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
                 />
               </ListItemButton>
-              <ListItemButton 
-                sx={{ 
-                  pl: 4, 
+              <ListItemButton
+                sx={{
+                  pl: 4,
                   py: 1,
                   borderRadius: 2,
                   mb: 0.5,
                   '&:hover': {
                     backgroundColor: alpha(theme.palette.secondary.main, 0.05),
                   }
-                }} 
+                }}
                 onClick={() => navigate('/community/explore')}
               >
                 <ListItemIcon>
                   <ExploreIcon sx={{ fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="Explore Groups" 
-                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }} 
+                <ListItemText
+                  primary="Explore Groups"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
                 />
               </ListItemButton>
-              
+
               {/* Display 3 random groups from the database */}
               {groups.slice(0, 3).map(group => (
-                <ListItemButton 
+                <ListItemButton
                   key={group._id}
-                  sx={{ 
-                    pl: 6, 
+                  sx={{
+                    pl: 6,
                     py: 1,
                     borderRadius: 2,
                     mb: 0.5,
@@ -791,7 +782,7 @@ export default function Community() {
                   to={`/g/${group.slug}`}
                 >
                   <ListItemIcon sx={{ minWidth: 32 }}>
-                    <Avatar 
+                    <Avatar
                       src={group.coverImage ? (group.coverImage.startsWith('http') ? group.coverImage : `${process.env.REACT_APP_API_URL}${group.coverImage}`) : '/images/default-group-cover.png'}
                       alt={group.name}
                       sx={{ width: 24, height: 24 }}
@@ -799,26 +790,26 @@ export default function Community() {
                       {group.name?.charAt(0)?.toUpperCase() || 'G'}
                     </Avatar>
                   </ListItemIcon>
-                  <ListItemText 
-                    primary={group.name} 
-                    primaryTypographyProps={{ 
+                  <ListItemText
+                    primary={group.name}
+                    primaryTypographyProps={{
                       variant: 'body2',
                       noWrap: true,
                       fontWeight: 500
-                    }} 
+                    }}
                   />
                 </ListItemButton>
               ))}
             </List>
           </Collapse>
-          
+
           <Divider sx={{ my: 2 }} />
-          
+
           {/* Resources Section - Collapsible */}
-          <ListItemButton 
+          <ListItemButton
             onClick={() => setResourcesOpen(!resourcesOpen)}
-            sx={{ 
-              borderRadius: 2, 
+            sx={{
+              borderRadius: 2,
               mb: 0.5,
               backgroundColor: resourcesOpen ? alpha(theme.palette.info.main, 0.05) : 'transparent',
               '&:hover': {
@@ -829,108 +820,108 @@ export default function Community() {
             <ListItemIcon>
               <InfoIcon sx={{ color: theme.palette.info.main }} />
             </ListItemIcon>
-            <ListItemText 
-              primary="Resources" 
-              primaryTypographyProps={{ fontWeight: 700, color: 'info.main' }} 
+            <ListItemText
+              primary="Resources"
+              primaryTypographyProps={{ fontWeight: 700, color: 'info.main' }}
             />
             {resourcesOpen ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
           <Collapse in={resourcesOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItemButton 
-                sx={{ 
-                  pl: 4, 
+              <ListItemButton
+                sx={{
+                  pl: 4,
                   py: 1,
                   borderRadius: 2,
                   mb: 0.5,
                   '&:hover': {
                     backgroundColor: alpha(theme.palette.info.main, 0.05),
                   }
-                }} 
+                }}
                 component={RouterLink}
                 to="/community/guidelines"
               >
                 <ListItemIcon>
                   <RuleIcon sx={{ fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="Community Rules" 
-                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }} 
+                <ListItemText
+                  primary="Community Rules"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
                 />
               </ListItemButton>
-              <ListItemButton 
-                sx={{ 
-                  pl: 4, 
+              <ListItemButton
+                sx={{
+                  pl: 4,
                   py: 1,
                   borderRadius: 2,
                   mb: 0.5,
                   '&:hover': {
                     backgroundColor: alpha(theme.palette.info.main, 0.05),
                   }
-                }} 
+                }}
                 component={RouterLink}
                 to="/privacy"
               >
                 <ListItemIcon>
                   <PrivacyTipIcon sx={{ fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="Privacy Policy" 
-                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }} 
+                <ListItemText
+                  primary="Privacy Policy"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
                 />
               </ListItemButton>
-              <ListItemButton 
-                sx={{ 
-                  pl: 4, 
+              <ListItemButton
+                sx={{
+                  pl: 4,
                   py: 1,
                   borderRadius: 2,
                   mb: 0.5,
                   '&:hover': {
                     backgroundColor: alpha(theme.palette.info.main, 0.05),
                   }
-                }} 
+                }}
                 component={RouterLink}
                 to="/terms"
               >
                 <ListItemIcon>
                   <GavelIcon sx={{ fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="Terms of Service" 
-                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }} 
+                <ListItemText
+                  primary="Terms of Service"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
                 />
               </ListItemButton>
-              <ListItemButton 
-                sx={{ 
-                  pl: 4, 
+              <ListItemButton
+                sx={{
+                  pl: 4,
                   py: 1,
                   borderRadius: 2,
                   mb: 0.5,
                   '&:hover': {
                     backgroundColor: alpha(theme.palette.info.main, 0.05),
                   }
-                }} 
+                }}
                 component={RouterLink}
                 to="/community/guidelines"
               >
                 <ListItemIcon>
                   <CampaignIcon sx={{ fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="Community Guidelines" 
-                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }} 
+                <ListItemText
+                  primary="Community Guidelines"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
                 />
               </ListItemButton>
             </List>
           </Collapse>
-          
+
           <Divider sx={{ my: 2 }} />
-          
+
           {/* Support Section - Collapsible */}
-          <ListItemButton 
+          <ListItemButton
             onClick={() => setSupportOpen(!supportOpen)}
-            sx={{ 
-              borderRadius: 2, 
+            sx={{
+              borderRadius: 2,
               mb: 0.5,
               backgroundColor: supportOpen ? alpha(theme.palette.success.main, 0.05) : 'transparent',
               '&:hover': {
@@ -941,73 +932,73 @@ export default function Community() {
             <ListItemIcon>
               <HelpIcon sx={{ color: theme.palette.success.main }} />
             </ListItemIcon>
-            <ListItemText 
-              primary="Support" 
-              primaryTypographyProps={{ fontWeight: 700, color: 'success.main' }} 
+            <ListItemText
+              primary="Support"
+              primaryTypographyProps={{ fontWeight: 700, color: 'success.main' }}
             />
             {supportOpen ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
           <Collapse in={supportOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItemButton 
-                sx={{ 
-                  pl: 4, 
+              <ListItemButton
+                sx={{
+                  pl: 4,
                   py: 1,
                   borderRadius: 2,
                   mb: 0.5,
                   '&:hover': {
                     backgroundColor: alpha(theme.palette.success.main, 0.05),
                   }
-                }} 
+                }}
                 onClick={() => navigate('/community/help')}
               >
                 <ListItemIcon>
                   <HelpIcon sx={{ fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="Help Center" 
-                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }} 
+                <ListItemText
+                  primary="Help Center"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
                 />
               </ListItemButton>
-              <ListItemButton 
-                sx={{ 
-                  pl: 4, 
+              <ListItemButton
+                sx={{
+                  pl: 4,
                   py: 1,
                   borderRadius: 2,
                   mb: 0.5,
                   '&:hover': {
                     backgroundColor: alpha(theme.palette.success.main, 0.05),
                   }
-                }} 
+                }}
                 component={RouterLink}
                 to="/support"
               >
                 <ListItemIcon>
                   <ContactSupportIcon sx={{ fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="Contact Us" 
-                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }} 
+                <ListItemText
+                  primary="Contact Us"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
                 />
               </ListItemButton>
-              <ListItemButton 
-                sx={{ 
-                  pl: 4, 
+              <ListItemButton
+                sx={{
+                  pl: 4,
                   py: 1,
                   borderRadius: 2,
                   mb: 0.5,
                   '&:hover': {
                     backgroundColor: alpha(theme.palette.success.main, 0.05),
                   }
-                }} 
+                }}
                 onClick={() => navigate('/community/feedback')}
               >
                 <ListItemIcon>
                   <FeedbackIcon sx={{ fontSize: 20 }} />
                 </ListItemIcon>
-                <ListItemText 
-                  primary="Feedback" 
-                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }} 
+                <ListItemText
+                  primary="Feedback"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
                 />
               </ListItemButton>
             </List>
@@ -1023,7 +1014,7 @@ export default function Community() {
   // Function to get header content based on current page
   const getHeaderContent = () => {
     const currentPath = window.location.pathname;
-    
+
     switch (currentPath) {
       case '/community/popular':
         return {
@@ -1056,8 +1047,8 @@ export default function Community() {
   const headerContent = getHeaderContent();
 
   return (
-    <Box sx={{ 
-      display: 'flex', 
+    <Box sx={{
+      display: 'flex',
       minHeight: '100vh',
       bgcolor: theme.palette.background.default,
       overflowX: 'hidden',
@@ -1154,11 +1145,11 @@ export default function Community() {
           {/* Three Column Layout */}
           <Grid container spacing={3}>
             {/* Middle Content - Posts Feed */}
-            <Grid 
-              size={{ xs: 12, md: 8.5 }} 
-              sx={{ 
-                overflowX: 'hidden', 
-                pr: { xs: 0, md: '320px' }, 
+            <Grid
+              size={{ xs: 12, md: 8.5 }}
+              sx={{
+                overflowX: 'hidden',
+                pr: { xs: 0, md: '320px' },
                 pl: { xs: 0, md: leftSidebarVisible ? 0 : 3 },
                 width: { xs: '100%', md: 'auto' }
               }}
@@ -1179,7 +1170,7 @@ export default function Community() {
                         </InputAdornment>
                       ),
                     }}
-                    sx={{ 
+                    sx={{
                       borderRadius: { xs: 2, md: 3 },
                       '& .MuiOutlinedInput-root': {
                         borderRadius: { xs: 2, md: 3 },
@@ -1197,7 +1188,7 @@ export default function Community() {
                     variant="contained"
                     startIcon={<AddIcon sx={{ fontSize: { xs: 14, md: 16 } }} />}
                     onClick={handleCreateClick}
-                    sx={{ 
+                    sx={{
                       borderRadius: { xs: 3, md: 4 },
                       fontWeight: 600,
                       whiteSpace: 'nowrap',
@@ -1217,7 +1208,7 @@ export default function Community() {
                     <Box component="span" sx={{ display: { xs: 'inline', md: 'none' } }}>Create</Box>
                   </Button>
                 </Box>
-                
+
                 {/* Filters and View Options */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'center', gap: 2 }}>
                   <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', width: { xs: '100%', md: 'auto' } }}>
@@ -1232,7 +1223,7 @@ export default function Community() {
                         MenuProps={{
                           disableScrollLock: true,
                         }}
-                        sx={{ 
+                        sx={{
                           borderRadius: 2,
                           height: 36,
                           fontSize: '0.875rem',
@@ -1246,9 +1237,9 @@ export default function Community() {
                         <MenuItem value="all">All</MenuItem>
                         <MenuItem value="recipes">Recipes</MenuItem>
                         <MenuItem value="discussions">Discussions</MenuItem>
-                        </Select>
+                      </Select>
                     </FormControl>
-                    
+
                     {/* Sort Options Dropdown */}
                     <FormControl size="small" sx={{ minWidth: 80, width: { xs: '40%', md: 'auto' } }}>
                       <Select
@@ -1257,7 +1248,7 @@ export default function Community() {
                         MenuProps={{
                           disableScrollLock: true,
                         }}
-                        sx={{ 
+                        sx={{
                           borderRadius: 2,
                           height: 36,
                           fontSize: '0.875rem',
@@ -1275,14 +1266,14 @@ export default function Community() {
                       </Select>
                     </FormControl>
                   </Box>
-                  
+
                   {/* View Mode Toggle - Show on mobile with a more compact design */}
                   <ToggleButtonGroup
                     value={viewMode}
                     exclusive
                     onChange={(e, newViewMode) => newViewMode && setViewMode(newViewMode)}
                     size="small"
-                    sx={{ 
+                    sx={{
                       height: 36,
                       // Show on mobile with a more compact design
                       display: { xs: 'flex', md: 'flex' }
@@ -1310,11 +1301,11 @@ export default function Community() {
                 {viewMode !== 'grid' ? (
                   <Stack spacing={2}>
                     {!loading && !error && posts.length === 0 ? (
-                      <Paper 
+                      <Paper
                         elevation={0}
-                        sx={{ 
-                          p: { xs: 4, md: 8 }, 
-                          textAlign: 'center', 
+                        sx={{
+                          p: { xs: 4, md: 8 },
+                          textAlign: 'center',
                           borderRadius: 3,
                           border: `1px solid ${theme.palette.divider}`,
                           width: '100%',
@@ -1327,14 +1318,14 @@ export default function Community() {
                         <Typography variant="body1" color="text.secondary" sx={{ mb: 3, fontSize: { xs: '0.9rem', md: '1rem' } }}>
                           Be the first to start a conversation!
                         </Typography>
-                        <Button 
-                          variant="contained" 
+                        <Button
+                          variant="contained"
                           onClick={handleCreateClick}
                           startIcon={<AddIcon />}
-                          sx={{ 
-                            borderRadius: 3, 
-                            px: { xs: 2, md: 4 }, 
-                            py: { xs: 1, md: 1.5 }, 
+                          sx={{
+                            borderRadius: 3,
+                            px: { xs: 2, md: 4 },
+                            py: { xs: 1, md: 1.5 },
                             fontWeight: 700,
                             fontSize: { xs: '0.9rem', md: '1rem' },
                             minWidth: { xs: 'auto', md: 120 }
@@ -1383,11 +1374,11 @@ export default function Community() {
                   <Grid container spacing={2}>
                     {!loading && !error && posts.length === 0 ? (
                       <Grid size={{ xs: 12 }} sx={{ display: 'flex' }}>
-                        <Paper 
+                        <Paper
                           elevation={0}
-                          sx={{ 
-                            p: { xs: 4, md: 8 }, 
-                            textAlign: 'center', 
+                          sx={{
+                            p: { xs: 4, md: 8 },
+                            textAlign: 'center',
                             borderRadius: 3,
                             border: `1px solid ${theme.palette.divider}`,
                             width: '100%',
@@ -1400,14 +1391,14 @@ export default function Community() {
                           <Typography variant="body1" color="text.secondary" sx={{ mb: 3, fontSize: { xs: '0.9rem', md: '1rem' } }}>
                             Be the first to share an image post!
                           </Typography>
-                          <Button 
-                            variant="contained" 
+                          <Button
+                            variant="contained"
                             onClick={handleCreateClick}
                             startIcon={<AddIcon />}
-                            sx={{ 
-                              borderRadius: 3, 
-                              px: { xs: 2, md: 4 }, 
-                              py: { xs: 1, md: 1.5 }, 
+                            sx={{
+                              borderRadius: 3,
+                              px: { xs: 2, md: 4 },
+                              py: { xs: 1, md: 1.5 },
                               fontWeight: 700,
                               fontSize: { xs: '0.9rem', md: '1rem' },
                               minWidth: { xs: 'auto', md: 120 }
@@ -1422,7 +1413,7 @@ export default function Community() {
                         const imagePosts = posts.filter(post => post.media && post.media.length > 0);
                         return imagePosts.map((post, index) => (
                           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={post._id}>
-                            <Box 
+                            <Box
                               ref={index === imagePosts.length - 1 ? lastPostRef : null}
                               onClick={() => navigate(`/post/${post._id}`)}
                               sx={{
@@ -1453,11 +1444,11 @@ export default function Community() {
                                 }}
                               />
                               <Box sx={{ p: 2 }}>
-                                <Typography 
-                                  variant="h6" 
-                                  sx={{ 
-                                    fontWeight: 700, 
-                                    fontSize: 16, 
+                                <Typography
+                                  variant="h6"
+                                  sx={{
+                                    fontWeight: 700,
+                                    fontSize: 16,
                                     lineHeight: 1.4,
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
@@ -1471,17 +1462,17 @@ export default function Community() {
                                   {post.title}
                                 </Typography>
                                 <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1 }}>
-                                  <Avatar 
+                                  <Avatar
                                     src={post.user?.profilePic ? `${process.env.REACT_APP_API_URL}${post.user.profilePic}` : undefined}
                                     alt={post.user?.username || 'User'}
                                     sx={{ width: 24, height: 24, fontSize: 12 }}
                                   >
                                     {post.user?.username?.charAt(0)?.toUpperCase() || 'U'}
                                   </Avatar>
-                                  <Typography 
-                                    variant="caption" 
-                                    sx={{ 
-                                      fontWeight: 500, 
+                                  <Typography
+                                    variant="caption"
+                                    sx={{
+                                      fontWeight: 500,
                                       color: 'text.secondary',
                                       fontFamily: theme.typography.fontFamily,
                                     }}
@@ -1556,10 +1547,10 @@ export default function Community() {
                 <Box sx={{ p: 2, pt: 3 }}>
                   <Stack spacing={2.5}>
                     {/* Trending Section */}
-                    <Paper 
+                    <Paper
                       elevation={0}
-                      sx={{ 
-                        p: 2, 
+                      sx={{
+                        p: 2,
                         borderRadius: 2.5,
                         border: `1px solid ${theme.palette.divider}`,
                         bgcolor: theme.palette.background.paper,
@@ -1571,7 +1562,7 @@ export default function Community() {
                           Trending
                         </Typography>
                       </Box>
-                    
+
                       {/* Trending Topics */}
                       <Box sx={{ mb: 2.5 }}>
                         <Typography variant="caption" sx={{ fontWeight: 600, mb: 1, display: 'block', color: 'text.secondary', fontFamily: theme.typography.fontFamily }}>
@@ -1613,10 +1604,10 @@ export default function Community() {
                         </Typography>
                         <Stack spacing={1.5}>
                           {posts.slice(0, 3).map((post) => (
-                            <Box 
+                            <Box
                               key={post._id}
                               onClick={() => navigate(`/post/${post._id}`)}
-                              sx={{ 
+                              sx={{
                                 cursor: 'pointer',
                                 p: 1.5,
                                 borderRadius: 2,
@@ -1629,7 +1620,7 @@ export default function Community() {
                                 transition: 'all 0.2s'
                               }}
                             >
-                              <Avatar 
+                              <Avatar
                                 src={post.user?.profilePic ? `${process.env.REACT_APP_API_URL}${post.user.profilePic}` : undefined}
                                 alt={post.user?.username || 'User'}
                                 sx={{ width: 32, height: 32, fontSize: 14 }}
@@ -1637,11 +1628,11 @@ export default function Community() {
                                 {post.user?.username?.charAt(0)?.toUpperCase() || 'U'}
                               </Avatar>
                               <Box sx={{ flex: 1, minWidth: 0 }}>
-                                <Typography 
-                                  variant="body2" 
-                                  sx={{ 
-                                    fontWeight: 600, 
-                                    fontSize: 13, 
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    fontWeight: 600,
+                                    fontSize: 13,
                                     lineHeight: 1.4,
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
@@ -1661,10 +1652,10 @@ export default function Community() {
                     </Paper>
 
                     {/* Recommended Section */}
-                    <Paper 
+                    <Paper
                       elevation={0}
-                      sx={{ 
-                        p: 2, 
+                      sx={{
+                        p: 2,
                         borderRadius: 2.5,
                         border: `1px solid ${theme.palette.divider}`,
                         bgcolor: theme.palette.background.paper,
@@ -1676,7 +1667,7 @@ export default function Community() {
                           Recommended
                         </Typography>
                       </Box>
-                    
+
                       {/* Recommended Groups */}
                       {groups.length > 0 && (
                         <Box>
@@ -1729,9 +1720,9 @@ export default function Community() {
             onClose={handleSnackbarClose}
             anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
           >
-            <Alert 
-              onClose={handleSnackbarClose} 
-              severity={snackbar.severity} 
+            <Alert
+              onClose={handleSnackbarClose}
+              severity={snackbar.severity}
               sx={{ width: "100%" }}
               action={
                 snackbar.severity === "info" ? (

@@ -5,8 +5,6 @@ import {
   Avatar,
   Typography,
   Chip,
-  CardMedia,
-  Divider,
   IconButton,
   Button,
   Tooltip,
@@ -16,7 +14,6 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Link as RouterLink, useLocation } from "react-router-dom";
-import { formatDistanceToNow } from "date-fns";
 import {
   ThumbUp as ThumbUpIcon,
   Bookmark as BookmarkIcon,
@@ -29,14 +26,12 @@ import {
   CollectionsBookmark as CollectionsBookmarkIcon,
   AccessTime as AccessTimeIcon,
   People as PeopleIcon,
-  MoreVert as MoreVertIcon,
   PlayArrow as PlayArrowIcon,
   Image as ImageIcon,
   Share as ShareIcon,
 } from "@mui/icons-material";
 import communityService from "../services/communityService";
 import AddToCollectionDialog from "./AddToCollectionDialog";
-import RichTextDisplay from "./RichTextDisplay";
 
 const PostCard = ({
   showSnackbar,

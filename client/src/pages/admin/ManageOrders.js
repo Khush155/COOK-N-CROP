@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Typography, Alert, Table, TableBody, TableCell, Box, Pagination,
-  TableContainer, TableHead, TableRow, Paper, Tooltip, Chip, Button, Select, MenuItem, IconButton, Container, Stack,
-  TextField, FormControl, InputLabel, useTheme, alpha, Stepper, Step, StepLabel, Menu, ListItemIcon, ListItemText
+  Typography, Alert, Table, TableBody, TableCell, Box, Pagination, TableHead, TableRow, Paper, Tooltip, Chip, Button, Select, MenuItem, IconButton, Container, Stack,
+  TextField, FormControl, InputLabel, useTheme, alpha, Menu, ListItemIcon, ListItemText, Avatar
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -14,6 +13,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import Loader from '../../custom_components/Loader';
+import { getAvatarUrl } from '../../utils/imageHelpers';
 
 const ManageOrders = () => {
   const theme = useTheme();
@@ -91,17 +91,59 @@ const ManageOrders = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: { xs: 2, sm: 3, md: 4 } }}>
-      <Paper sx={{ p: { xs: 2, sm: 3, md: 4 }, mb: 4, borderRadius: 3, border: `1px solid ${theme.palette.divider}` }}>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 800, mb: 1, fontFamily: theme.typography.fontFamily, fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' } }}>
-          Manage Orders
-        </Typography>
-        <Typography variant="h6" color="text.secondary" sx={{ fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
-          View, update, and manage all customer orders.
-        </Typography>
+    <Container maxWidth="xl" disableGutters sx={{ py: { xs: 2, sm: 3, md: 4 } }}>
+      {/* Hero Header Banner */}
+      <Paper 
+        elevation={0}
+        sx={{ 
+          p: { xs: 2.5, sm: 3.5 }, 
+          mb: 4, 
+          borderRadius: 4, 
+          border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+          background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.12)}, ${alpha(theme.palette.background.paper, 0.95)})`,
+          backdropFilter: 'blur(16px)',
+          boxShadow: `0 8px 32px -4px ${alpha(theme.palette.primary.main, 0.1)}`,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 2
+        }}
+      >
+        <Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
+            <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.15), color: 'primary.main', width: 44, height: 44 }}>
+              <ReceiptLongIcon />
+            </Avatar>
+            <Typography variant="h4" component="h1" sx={{ fontWeight: 800, fontFamily: theme.typography.fontFamily, fontSize: { xs: '1.5rem', sm: '1.85rem', md: '2.25rem' }, letterSpacing: '-0.02em' }}>
+              Order Management
+            </Typography>
+          </Box>
+          <Typography variant="body1" color="text.secondary" sx={{ fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.85rem', sm: '0.95rem' } }}>
+            Inspect status timelines, manage customer orders, and update delivery states.
+          </Typography>
+        </Box>
+        <Button
+          component={RouterLink}
+          to="/admin/orders/create"
+          variant="contained"
+          startIcon={<AddShoppingCartIcon />}
+          sx={{
+            borderRadius: 2.5,
+            fontWeight: 700,
+            textTransform: 'none',
+            px: 2.5,
+            py: 1,
+            fontFamily: theme.typography.fontFamily,
+            background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+            boxShadow: `0 4px 14px ${alpha(theme.palette.primary.main, 0.35)}`,
+          }}
+        >
+          Create Order
+        </Button>
       </Paper>
 
-      <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, border: `1px solid ${theme.palette.divider}` }}>
+      <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 4, border: `1px solid ${alpha(theme.palette.divider, 0.6)}`, boxShadow: `0 4px 20px ${alpha(theme.palette.common.black, 0.04)}` }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: { xs: 1, sm: 2 } }}>
           <Stack direction="row" spacing={{ xs: 1, sm: 2 }} sx={{ flexGrow: 1, flexWrap: 'wrap', gap: { xs: 1, sm: 2 }, alignItems: 'center', width: { xs: '100%', sm: 'auto' } }}>
             <TextField
@@ -111,30 +153,25 @@ const ManageOrders = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               sx={{ 
-                minWidth: { xs: '100%', sm: 200 },
-                '& .MuiOutlinedInput-root': { borderRadius: 2 },
-                height: { sm: 40 } // Fixed height for laptop view
+                minWidth: { xs: '100%', sm: 260 },
+                '& .MuiOutlinedInput-root': { borderRadius: 3 }
               }}
-              InputLabelProps={{ sx: { fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.75rem', sm: '1rem' } } }}
-              inputProps={{ sx: { fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.75rem', sm: '1rem' } } }}
+              InputLabelProps={{ sx: { fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.75rem', sm: '0.875rem' } } }}
+              inputProps={{ sx: { fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.75rem', sm: '0.875rem' } } }}
               InputProps={{
                 startAdornment: <SearchIcon sx={{ mr: 1, fontSize: { xs: 16, sm: 20 }, color: 'text.secondary' }} />,
               }}
             />
-            <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 120 }, height: { sm: 40 } }}>
-              <InputLabel sx={{ fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.75rem', sm: '1rem' } }}>Status</InputLabel>
+            <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 140 } }}>
+              <InputLabel sx={{ fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Status Filter</InputLabel>
               <Select
                 value={statusFilter}
-                label="Status"
+                label="Status Filter"
                 onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
                 sx={{ 
-                  borderRadius: 2, 
+                  borderRadius: 3, 
                   fontFamily: theme.typography.fontFamily,
-                  height: { sm: 40 }, // Fixed height for laptop view
-                  '& .MuiSelect-select': { 
-                    py: { xs: 1, sm: 1 },
-                    fontSize: { xs: '0.75rem', sm: '1rem' }
-                  }
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' }
                 }}
                 IconComponent={FilterListIcon}
                 MenuProps={{
@@ -185,7 +222,7 @@ const ManageOrders = () => {
             <Box sx={{ overflowX: 'auto', width: '100%' }}>
               <Table sx={{ minWidth: { xs: 600, sm: 800, md: 1000 } }}>
                 <TableHead>
-                  <TableRow>
+                  <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.04) }}>
                     <TableCell sx={{ fontWeight: 'bold', fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Order ID</TableCell>
                     <TableCell sx={{ fontWeight: 'bold', fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>User</TableCell>
                     <TableCell sx={{ fontWeight: 'bold', fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>Date</TableCell>
@@ -218,22 +255,19 @@ const ManageOrders = () => {
                         </TableCell>
                         <TableCell sx={{ fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Box 
+                            <Avatar
+                              src={getAvatarUrl(order.user)}
                               sx={{ 
                                 width: { xs: 24, sm: 32 }, 
                                 height: { xs: 24, sm: 32 }, 
-                                borderRadius: '50%', 
                                 bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'center',
-                                fontWeight: 'bold',
                                 color: 'primary.main',
+                                fontWeight: 'bold',
                                 fontSize: { xs: '0.625rem', sm: '0.75rem' }
                               }}
                             >
                               {order.user?.username?.charAt(0).toUpperCase() || 'U'}
-                            </Box>
+                            </Avatar>
                             <Box>
                               <Typography variant="body2" sx={{ fontFamily: theme.typography.fontFamily, fontWeight: 500, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
                                 {order.user?.username || 'N/A'}

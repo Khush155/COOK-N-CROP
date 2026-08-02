@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, Button, Stack, Avatar, useMediaQuery } from '@mui/material';
+import { Box, Button, Stack, Avatar, useMediaQuery } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '@mui/material/styles';
 import RichTextInput from './RichTextInput';

@@ -40,6 +40,7 @@ const EnhancedSearch = ({ searchTerm, setSearchTerm, onSearchSubmit }) => {
         popularSearches: []
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm]);
 
   // Close suggestions when clicking outside

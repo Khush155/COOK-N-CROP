@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  Paper, Typography, Box, Grid, TextField, Autocomplete, Button, IconButton, Container, Stack,
+  Paper, Typography, Box, Grid, TextField, Autocomplete, Button, IconButton, Container,
   List, ListItem, ListItemText, ListItemAvatar, Avatar, Divider, Alert
 } from '@mui/material';
 import { useTheme, alpha } from '@mui/material/styles';

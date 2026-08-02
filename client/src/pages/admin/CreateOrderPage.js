@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Paper, Typography, Box, Grid, TextField, Autocomplete, Button, IconButton, Container, Stack,
+  Paper, Typography, Box, Grid, TextField, Autocomplete, Button, IconButton, Container,
   List, ListItem, ListItemText, ListItemAvatar, Avatar, Divider, Alert, Chip, Card, CardContent,
-  Stepper, Step, StepLabel, useTheme, alpha, InputAdornment, Tooltip
+  Stepper, Step, StepLabel, alpha, InputAdornment
 } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import DeleteIcon from '@mui/icons-material/Delete';

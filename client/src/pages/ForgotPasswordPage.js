@@ -9,8 +9,7 @@ import {
   Alert,
   Stack,
   Avatar,
-  useMediaQuery,
-  useTheme
+  useMediaQuery
 } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { Link as RouterLink } from 'react-router-dom';

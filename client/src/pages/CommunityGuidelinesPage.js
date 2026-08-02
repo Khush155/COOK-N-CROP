@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Container, Typography, Paper, Box, List, ListItem, ListItemIcon, ListItemText, Divider, alpha, useMediaQuery, useTheme
+  Container, Typography, Paper, Box, List, ListItem, ListItemIcon, ListItemText, Divider, alpha, useMediaQuery
 } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { Gavel as GavelIcon, CheckCircle as CheckCircleIcon, Error as ErrorIcon, Info as InfoIcon } from '@mui/icons-material';

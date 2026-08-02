@@ -14,7 +14,6 @@ import {
   ToggleButton,
   Pagination,
   Stack,
-  Chip,
   FormControl,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -28,7 +27,6 @@ import {
   Search as SearchIcon,
   ViewModule as ViewModuleIcon,
   ViewList as ViewListIcon,
-  Sort as SortIcon,
 } from '@mui/icons-material';
 import Loader from '../custom_components/Loader';
 

@@ -9,7 +9,6 @@ import Navbar from "./components/Navbar";
 import AppRouter from "./router";
 import Footer from "./components/Footer";
 import { CssBaseline, GlobalStyles } from "@mui/material";
-import Chatbot from "./components/Chatbot";
 import ScrollToTopButton from "./components/ScrollToTopButton";
 import MobileDock from "./components/MobileDock";
 
@@ -18,6 +17,11 @@ function AppContent() {
   // Don't show footer on messenger page
   const hideFooter = location.pathname === '/messages';
   
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   const [showMobileDock, setShowMobileDock] = useState(true);
   
   useEffect(() => {
@@ -53,7 +57,6 @@ function AppContent() {
       <main style={{ flexGrow: 1, paddingBottom: hideFooter ? '0px' : '80px' }}>
         <AppRouter />
       </main>
-      <Chatbot />
       <ScrollToTopButton />
       {!hideFooter && <Footer />}
       {showMobileDock && <MobileDock />}

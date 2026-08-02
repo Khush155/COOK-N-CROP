@@ -149,38 +149,74 @@ const AdminDashboardPage = () => {
         overflow: "hidden",
       }}
     >
-      {/* Header */}
+      {/* Brand Header */}
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           mb: { xs: 2, sm: 3 },
-          pb: { xs: 1, sm: 2 },
-          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+          p: { xs: 1.5, sm: 2 },
+          borderRadius: 3,
+          background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.12)}, ${alpha(theme.palette.secondary?.main || theme.palette.primary.main, 0.06)})`,
+          border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
         }}
       >
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: "bold",
-            fontFamily: theme.typography.fontFamily,
-            color: theme.palette.primary.main,
-            transition: "all 0.3s ease",
-            fontSize: { xs: "1rem", sm: "1.25rem" },
-          }}
-        >
-          Admin Panel
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Box
+            sx={{
+              width: 38,
+              height: 38,
+              borderRadius: 2,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+              color: "#fff",
+              boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+            }}
+          >
+            <DashboardIcon sx={{ fontSize: 22 }} />
+          </Box>
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 800,
+                fontFamily: theme.typography.fontFamily,
+                fontSize: { xs: "0.95rem", sm: "1.05rem" },
+                letterSpacing: 0.3,
+                background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              Cook'N'Crop
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "text.secondary",
+                fontWeight: 600,
+                fontSize: "0.68rem",
+                display: "block",
+                lineHeight: 1,
+              }}
+            >
+              ADMIN CONSOLE
+            </Typography>
+          </Box>
+        </Box>
         {!isMobile && (
           <IconButton
             onClick={toggleSidebar}
             size="small"
             sx={{
-              transition: "transform 0.3s ease",
+              borderRadius: 2,
+              transition: "all 0.2s ease",
               "&:hover": {
-                transform: "scale(1.1)",
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                transform: "scale(1.08)",
+                bgcolor: alpha(theme.palette.primary.main, 0.12),
               },
             }}
           >
@@ -714,21 +750,26 @@ const AdminDashboardPage = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          width: "100%",
+          width: {
+            xs: "100%",
+            md: sidebarOpen ? "calc(100% - 280px)" : "100%",
+          },
           ml: {
             xs: 0,
-            md: sidebarOpen ? { xs: "240px", sm: "240px", md: "280px" } : 0,
+            md: sidebarOpen ? "280px" : 0,
           },
-          pl: { xs: 0, md: sidebarOpen ? 0 : { xs: 1, sm: 2 } },
+          px: { xs: 1, sm: 2, md: 3 },
           pt: { xs: 1, sm: 2 },
           pb: { xs: 2, sm: 4 },
-          transition: "all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)",
+          transition: "all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1)",
           overflowX: "hidden",
+          boxSizing: "border-box",
         }}
       >
         <Container
           maxWidth="xl"
-          sx={{ px: { xs: 1, sm: 2, md: 3 }, overflowX: "hidden" }}
+          disableGutters
+          sx={{ px: 0, overflowX: "hidden" }}
         >
           {/* Mobile Drawer */}
           <Drawer

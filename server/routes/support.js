@@ -249,7 +249,7 @@ router.post('/:id/reply', protect, authorize('admin'), async (req, res) => {
             </div>
         `;
 
-        await sendEmail({ email: message.email, subject: emailSubject, message: emailMessage });
+        sendEmail({ email: message.email, subject: emailSubject, message: emailMessage }).catch(() => {});
 
         if (message.status === 'Open') {
             message.status = 'In Progress';

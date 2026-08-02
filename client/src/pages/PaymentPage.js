@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
-  Container, Paper, Typography, Box, Grid, Radio, RadioGroup, FormControl, Button, Alert, Dialog, DialogTitle, DialogContent, DialogActions, Stack, Divider, List, ListItem, ListItemAvatar, Avatar, ListItemText, useTheme, alpha, Card, CardContent, CardHeader, Chip, LinearProgress, Select, MenuItem, InputLabel, FormControlLabel, Checkbox, TextField
+  Container, Paper, Typography, Box, Grid, Radio, RadioGroup, FormControl, Button, Alert, Dialog, DialogTitle, DialogContent, DialogActions, Stack, Divider, List, ListItem, ListItemAvatar, Avatar, ListItemText, useTheme, alpha, Card, CardContent, CardHeader, Chip, LinearProgress, Select, MenuItem, InputLabel, TextField
 } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
@@ -13,7 +13,6 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import NoteIcon from '@mui/icons-material/Note';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import StarsIcon from '@mui/icons-material/Stars';
 import AddIcon from '@mui/icons-material/Add';
 import orderService from '../services/orderService';
 import productService from '../services/productService';
@@ -100,15 +99,18 @@ const PaymentPage = () => {
     setError('');
     try {
       const orderData = {
-        orderItems: validItems.map(item => ({ product: item.product._id, qty: item.quantity })),
+        orderItems: validItems.map(item => ({ 
+          product: typeof item.product === 'object' ? (item.product._id || item.product.id) : item.product, 
+          qty: item.quantity 
+        })),
         shippingAddress: {
-          fullName: selectedAddress.fullName,
-          street: selectedAddress.street,
-          city: selectedAddress.city,
-          state: selectedAddress.state,
-          zipCode: selectedAddress.zipCode,
-          country: selectedAddress.country,
-          phone: selectedAddress.phone,
+          fullName: selectedAddress.fullName || selectedAddress.name || 'Customer',
+          street: selectedAddress.street || selectedAddress.address || selectedAddress.addressLine1 || 'Standard Address',
+          city: selectedAddress.city || 'City',
+          state: selectedAddress.state || 'State',
+          zipCode: String(selectedAddress.zipCode || selectedAddress.postalCode || selectedAddress.pincode || '110001'),
+          country: selectedAddress.country || 'India',
+          phone: String(selectedAddress.phone || selectedAddress.phoneNumber || '9876543210'),
         },
         paymentMethod,
         couponCode: appliedCoupon ? appliedCoupon.code : undefined,

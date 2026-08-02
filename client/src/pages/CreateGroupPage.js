@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Box, Container, Typography, Paper, TextField, Button,
-  Snackbar, Alert, alpha, Stack, Card, CardContent, CardMedia
+  Box, Container, Typography, Paper,
+  Snackbar, Alert, alpha, Stack, Card, CardContent
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { GroupAdd as GroupAddIcon, Info as InfoIcon } from '@mui/icons-material';
 import groupService from '../services/groupService';
 import CreateGroupForm from '../components/CreateGroupForm';
-import Loader from '../custom_components/Loader';
 
 const CreateGroupPage = () => {
   const theme = useTheme();

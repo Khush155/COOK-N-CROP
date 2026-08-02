@@ -15,7 +15,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Divider,
   Chip,
   Stack,
   AvatarGroup,
@@ -27,8 +26,6 @@ import {
   Pagination,
   ToggleButtonGroup,
   ToggleButton,
-  Tooltip,
-  IconButton,
   useMediaQuery,
 } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
@@ -36,9 +33,6 @@ import orderService from '../services/orderService';
 import {
   Search as SearchIcon,
   ReceiptLong as ReceiptLongIcon,
-  FilterList as FilterListIcon,
-  Sort as SortIcon,
-  ShoppingCart as ShoppingCartIcon,
   LocalShipping as LocalShippingIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,

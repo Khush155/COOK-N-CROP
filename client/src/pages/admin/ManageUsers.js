@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Typography, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Tooltip, Select, MenuItem, Chip, Button, TextField, Pagination, Checkbox, Container, Stack, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, FormControl, InputLabel, Menu, ListItemIcon, ListItemText } from '@mui/material';
+import { Box, Typography, Alert, Table, TableBody, TableCell, TableHead, TableRow, Paper, IconButton, Select, MenuItem, Chip, Button, TextField, Pagination, Checkbox, Container, Stack, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, FormControl, Menu, ListItemIcon, ListItemText, Avatar } from '@mui/material';
 import { useTheme, alpha } from '@mui/material/styles';
 import { Link as RouterLink } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -14,6 +14,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import adminService from '../../services/adminService';
 import { useAuth } from '../../contexts/AuthContext';
 import Loader from '../../custom_components/Loader';
+import { getAvatarUrl } from '../../utils/imageHelpers';
 
 const ManageUsers = () => {
   const { user: currentUser } = useAuth();
@@ -185,26 +186,56 @@ const ManageUsers = () => {
   const rowCount = users.length;
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Paper sx={{ p: { xs: 2, md: 4 }, mb: 4, borderRadius: 3, border: `1px solid ${theme.palette.divider}` }}>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 800, mb: 1, fontFamily: theme.typography.fontFamily, fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' } }}>
-          Manage Users
-        </Typography>
-        <Typography variant="h6" color="text.secondary" sx={{ fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.875rem', sm: '1rem' } }}>
-          Oversee and manage all registered users on the platform.
-        </Typography>
+    <Container maxWidth="xl" disableGutters sx={{ py: { xs: 2, sm: 3, md: 4 } }}>
+      {/* Hero Header Banner */}
+      <Paper 
+        elevation={0}
+        sx={{ 
+          p: { xs: 2.5, sm: 3.5 }, 
+          mb: 4, 
+          borderRadius: 4, 
+          border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+          background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.12)}, ${alpha(theme.palette.background.paper, 0.95)})`,
+          backdropFilter: 'blur(16px)',
+          boxShadow: `0 8px 32px -4px ${alpha(theme.palette.primary.main, 0.1)}`,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 2
+        }}
+      >
+        <Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
+            <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.15), color: 'primary.main', width: 44, height: 44 }}>
+              <PeopleOutlineIcon />
+            </Avatar>
+            <Typography variant="h4" component="h1" sx={{ fontWeight: 800, fontFamily: theme.typography.fontFamily, fontSize: { xs: '1.5rem', sm: '1.85rem', md: '2.25rem' }, letterSpacing: '-0.02em' }}>
+              User Management
+            </Typography>
+          </Box>
+          <Typography variant="body1" color="text.secondary" sx={{ fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.85rem', sm: '0.95rem' } }}>
+            Oversee, inspect roles, and manage status for registered platform users.
+          </Typography>
+        </Box>
+        <Chip 
+          label={`${users.length} Users Loaded`} 
+          variant="outlined" 
+          color="primary" 
+          sx={{ fontWeight: 700, borderRadius: 3, px: 1 }} 
+        />
       </Paper>
 
-      <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, border: `1px solid ${theme.palette.divider}` }}>
+      <Paper elevation={0} sx={{ p: { xs: 2, sm: 3 }, borderRadius: 4, border: `1px solid ${alpha(theme.palette.divider, 0.6)}`, boxShadow: `0 4px 20px ${alpha(theme.palette.common.black, 0.04)}` }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
           <Stack direction="row" spacing={2} sx={{ flexGrow: 1, flexWrap: 'wrap', gap: 2, width: { xs: '100%', sm: 'auto' } }}>
             <TextField
-              label="Search by Username or Email"
+              label="Search Username or Email"
               variant="outlined"
               size="small"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              sx={{ minWidth: { xs: '100%', sm: 250 }, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+              sx={{ minWidth: { xs: '100%', sm: 280 }, '& .MuiOutlinedInput-root': { borderRadius: 3 } }}
               InputLabelProps={{ sx: { fontFamily: theme.typography.fontFamily } }}
               inputProps={{ sx: { fontFamily: theme.typography.fontFamily } }}
             />
@@ -215,7 +246,7 @@ const ManageUsers = () => {
                   color="error"
                   startIcon={<BlockIcon />}
                   onClick={() => handleBulkStatusUpdate(false)}
-                  sx={{ borderRadius: 2, fontFamily: theme.typography.fontFamily, width: { xs: '100%', sm: 'auto' } }}
+                  sx={{ borderRadius: 2.5, fontFamily: theme.typography.fontFamily, width: { xs: '100%', sm: 'auto' }, textTransform: 'none', fontWeight: 700 }}
                 >
                   Deactivate Selected ({numSelected})
                 </Button>
@@ -223,7 +254,7 @@ const ManageUsers = () => {
                   variant="outlined"
                   startIcon={<CheckCircleOutlineIcon />}
                   onClick={() => handleBulkStatusUpdate(true)}
-                  sx={{ borderRadius: 2, fontFamily: theme.typography.fontFamily, width: { xs: '100%', sm: 'auto' } }}
+                  sx={{ borderRadius: 2.5, fontFamily: theme.typography.fontFamily, width: { xs: '100%', sm: 'auto' }, textTransform: 'none', fontWeight: 700 }}
                 >
                   Activate Selected
                 </Button>
@@ -236,22 +267,22 @@ const ManageUsers = () => {
               startIcon={exporting ? <Loader size="small" /> : <DownloadIcon />}
               onClick={handleExport}
               disabled={exporting}
-              sx={{ borderRadius: 2, fontFamily: theme.typography.fontFamily, width: { xs: '100%', sm: 'auto' } }}
+              sx={{ borderRadius: 2.5, fontFamily: theme.typography.fontFamily, width: { xs: '100%', sm: 'auto' }, textTransform: 'none', fontWeight: 700 }}
             >
-              Export
+              Export CSV
             </Button>
           </Stack>
         </Box>
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', my: 8 }}><Loader size="large" /></Box>
         ) : error ? (
-          <Alert severity="error" sx={{ fontFamily: theme.typography.fontFamily, borderRadius: 2 }}>{error}</Alert>
+          <Alert severity="error" sx={{ fontFamily: theme.typography.fontFamily, borderRadius: 3 }}>{error}</Alert>
         ) : (
           <>
             <Box sx={{ overflowX: 'auto', width: '100%' }}>
               <Table sx={{ minWidth: { xs: 600, sm: 800, md: '100%' } }}>
                 <TableHead>
-                  <TableRow>
+                  <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.04) }}>
                     <TableCell padding="checkbox">
                       <Checkbox
                         indeterminate={numSelected > 0 && numSelected < rowCount}
@@ -296,22 +327,19 @@ const ManageUsers = () => {
                           </TableCell>
                           <TableCell id={`user-checkbox-${user._id}`} sx={{ fontFamily: theme.typography.fontFamily }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
-                              <Box 
+                              <Avatar
+                                src={getAvatarUrl(user)}
                                 sx={{ 
                                   width: { xs: 32, sm: 40 }, 
                                   height: { xs: 32, sm: 40 }, 
-                                  borderRadius: '50%', 
                                   bgcolor: alpha(theme.palette.primary.main, 0.1),
-                                  display: 'flex', 
-                                  alignItems: 'center', 
-                                  justifyContent: 'center',
-                                  fontWeight: 'bold',
                                   color: 'primary.main',
+                                  fontWeight: 'bold',
                                   fontSize: { xs: '0.875rem', sm: '1rem' }
                                 }}
                               >
-                                {user.username.charAt(0).toUpperCase()}
-                              </Box>
+                                {user.username?.charAt(0).toUpperCase()}
+                              </Avatar>
                               <Box>
                                 <Typography variant="body2" sx={{ fontWeight: 500, fontFamily: theme.typography.fontFamily, fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                                   {user.username}

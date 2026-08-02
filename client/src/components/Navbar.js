@@ -15,22 +15,14 @@ import {
   ListItemText, 
   Tooltip, 
   useTheme, 
-  useMediaQuery, 
   Box, 
   Drawer, 
   List, 
   ListItem, 
-  ListItemButton, 
-  CssBaseline,
+  ListItemButton,
   Dialog,
   DialogTitle,
-  DialogContent,
-  DialogActions,
-  FormControl,
-  InputLabel,
-  Select,
   Switch,
-  Chip,
   alpha,
   styled,
   Snackbar,
@@ -52,13 +44,10 @@ import {
   Logout as LogoutIcon,
   Palette as PaletteIcon,
   AdminPanelSettings as AdminPanelSettingsIcon,
-  Settings as SettingsIcon,
   Apps as AppsIcon,
-  Close as CloseIcon,
   SupportAgent as SupportAgentIcon,
   ArrowDropDown as ArrowDropDownIcon,
-  Notifications as NotificationsIcon,
-  SmartToy as SmartToyIcon
+  Notifications as NotificationsIcon
 } from '@mui/icons-material';
 import ThemeCustomizer from "./ThemeCustomizer";
 import NotificationsMenu from "./NotificationsMenu";
@@ -226,18 +215,10 @@ const Navbar = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef(null);
 
-  const [showChatbot, setShowChatbot] = useState(() => localStorage.getItem('showChatbot') !== 'false');
   const [showMobileDock, setShowMobileDock] = useState(() => {
     const saved = localStorage.getItem('showMobileDock');
     return saved !== null ? JSON.parse(saved) : true;
   });
-
-  const handleToggleChatbot = () => {
-    const newValue = !showChatbot;
-    setShowChatbot(newValue);
-    localStorage.setItem('showChatbot', String(newValue));
-    window.dispatchEvent(new CustomEvent('chatbot-toggle', { detail: { visible: newValue } }));
-  };
 
   const handleToggleMobileDock = () => {
     const newValue = !showMobileDock;
@@ -843,24 +824,6 @@ const Navbar = () => {
                       <SupportAgentIcon fontSize="small" />
                     </ListItemIcon>
                     My Support Tickets
-                  </MenuItem>
-                  <MenuItem
-                    onClick={handleToggleChatbot}
-                    sx={{ borderRadius: 2, px: 3 }}
-                  >
-                    <ListItemIcon>
-                      <SmartToyIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary="Show Chatbot"
-                      primaryTypographyProps={{ fontFamily: theme.typography.fontFamily }}
-                    />
-                    <Switch
-                      checked={showChatbot}
-                      edge="end"
-                      readOnly
-                      inputProps={{ 'aria-label': 'toggle chatbot visibility' }}
-                    />
                   </MenuItem>
 
                   <Divider sx={{ my: 1 }} />

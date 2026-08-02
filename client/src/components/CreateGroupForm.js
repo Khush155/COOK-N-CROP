@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  Box, TextField, Button, Stack, Avatar, FormControlLabel, Switch, IconButton, Paper, Typography, Chip
+import { TextField, Button, Stack, Avatar, FormControlLabel, Switch, IconButton, Paper, Typography, Chip
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';

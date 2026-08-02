@@ -16,18 +16,6 @@ import {
   Alert,
   useTheme,
   TextField,
-  Radio,
-  RadioGroup,
-  FormControl,
-  FormControlLabel,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  MenuItem,
-  Select,
-  Card,
-  CardContent,
-  InputLabel,
   alpha,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -36,12 +24,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
 import MoveToInboxIcon from '@mui/icons-material/MoveToInbox';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ScheduleIcon from '@mui/icons-material/Schedule';
-import NoteIcon from '@mui/icons-material/Note';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import SecurityIcon from '@mui/icons-material/Security';
-import AutorenewIcon from '@mui/icons-material/Autorenew';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import productService from '../services/productService';
 import couponService from '../services/couponService';
@@ -130,6 +112,7 @@ const CartPage = () => {
       }
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const validItems = useMemo(() => {
@@ -388,6 +371,7 @@ const CartPage = () => {
         handleApplyCouponAuto(couponFromOffers);
       }, 100);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state]);
 
   const handleApplyCouponAuto = async (code) => {

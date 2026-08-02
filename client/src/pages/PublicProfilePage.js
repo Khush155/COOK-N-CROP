@@ -7,7 +7,6 @@ import {
   Alert,
   Paper,
   Avatar,
-  Divider,
   Tabs,
   Tab,
   Button,
@@ -21,7 +20,6 @@ import {
   DialogActions,
   Chip,
   IconButton,
-  Tooltip,
   Card,
   CardContent,
   CardActions,
@@ -42,7 +40,6 @@ import {
   styled
 } from '@mui/material/styles';
 import {
-  format,
   formatDistanceToNow
 } from 'date-fns';
 import {
@@ -55,10 +52,6 @@ import {
   BookmarkBorder as BookmarkBorderIcon,
   ThumbUp as ThumbUpIcon,
   Visibility as VisibilityIcon,
-  Cake as CakeIcon,
-  LocationOn as LocationOnIcon,
-  Link as LinkIcon,
-  CalendarToday as CalendarTodayIcon,
 } from '@mui/icons-material';
 import userService from '../services/userService';
 import { useAuth } from '../contexts/AuthContext';

@@ -92,7 +92,7 @@ export default function AppRouter() {
         <Route path="/profile/orders" element={<OrderHistoryPage />} />
         <Route path="/messages" element={<MessengerPage />} />
         <Route path="/cart" element={<CartPage />} />
-        <Route path="/offers" element={<OffersPage />} /> // Add this route
+        <Route path="/offers" element={<OffersPage />} /> {/* Add this route */}
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/order/:id" element={<OrderDetailsPage />} />
       </Route>
@@ -130,7 +130,7 @@ export default function AppRouter() {
         <Route path="/profile/orders" element={<OrderHistoryPage />} />
         <Route path="/messages" element={<MessengerPage />} />
         <Route path="/cart" element={<CartPage />} />
-        <Route path="/offers" element={<OffersPage />} /> // Add this route
+        <Route path="/offers" element={<OffersPage />} /> {/* Add this route */}
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/order/:id" element={<OrderDetailsPage />} />
       </Route>
@@ -154,7 +154,7 @@ export default function AppRouter() {
           <Route path="auto-join-groups" element={<ManageAutoJoinGroups />} /> {/* New: Auto-Join Groups Route */}
         </Route>
       </Route>
-      
+
       {/* Catch-all route */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -16,7 +16,6 @@ import {
   CardActions,
   Divider,
   LinearProgress,
-  Skeleton,
   useMediaQuery
 } from '@mui/material';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';

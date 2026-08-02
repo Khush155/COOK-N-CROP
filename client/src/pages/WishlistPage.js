@@ -13,8 +13,6 @@ import {
   InputAdornment,
   Pagination,
   Stack,
-  Chip,
-  FormControl,
   useMediaQuery,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -26,7 +24,6 @@ import Loader from '../custom_components/Loader';
 import {
   FavoriteBorder as FavoriteBorderIcon,
   Search as SearchIcon,
-  Sort as SortIcon,
 } from '@mui/icons-material';
 
 const WishlistPage = () => {

@@ -1,4 +1,13 @@
 const mongoose = require('mongoose');
+const dns = require('dns');
+
+// Fix for Windows DNS SRV lookup issues with mongodb+srv connection strings
+try {
+  dns.setDefaultResultOrder('ipv4first');
+  dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+} catch (e) {
+  // Silently ignore if environment restricts custom DNS
+}
 
 // Set up event listeners once, when the module is imported.
 mongoose.connection.on('connected', () => {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  Container, Typography, Paper, Box, TextField, Button, Rating, Alert, Snackbar, alpha, useMediaQuery, useTheme
+  Container, Typography, Paper, Box, TextField, Button, Rating, Alert, Snackbar, alpha, useMediaQuery
 } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { Feedback as FeedbackIcon, Send as SendIcon } from '@mui/icons-material';

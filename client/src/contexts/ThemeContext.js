@@ -17,21 +17,17 @@ const GlobalStyle = createGlobalStyle`
 export const ThemeContext = createContext();
 
 export const ThemeProviderComponent = ({ children }) => {
-  const [themeKey, setThemeKey] = useState(() => localStorage.getItem("themeKey") || "royalAmethystLight");
-  const [fontFamily, setFontFamily] = useState(() => localStorage.getItem("fontFamily") || "Merriweather, serif");
+  const [themeKey, setThemeKey] = useState(() => {
+    const saved = localStorage.getItem("themeKey");
+    return saved && themes[saved] ? saved : "harvestLuxe";
+  });
+  const [fontFamily, setFontFamily] = useState(() => localStorage.getItem("fontFamily") || "Inter, sans-serif");
 
   useEffect(() => localStorage.setItem("themeKey", themeKey), [themeKey]);
   useEffect(() => localStorage.setItem("fontFamily", fontFamily), [fontFamily]);
 
   const theme = useMemo(() => {
-    const baseTheme = themeFromKey(themeKey);
-    return {
-      ...baseTheme,
-      typography: {
-        ...baseTheme.typography,
-        fontFamily
-      },
-    };
+    return themeFromKey(themeKey, fontFamily);
   }, [themeKey, fontFamily]);
 
   const changeTheme = (key) => { if (themes[key]) setThemeKey(key); };

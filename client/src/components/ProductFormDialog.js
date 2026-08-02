@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField,
   Grid, Box, Avatar, MenuItem, Alert, Stack, Divider, Typography,
-  FormControlLabel, Checkbox, FormGroup, Chip, OutlinedInput, InputAdornment,
+  FormControlLabel, Checkbox, FormGroup, Chip, InputAdornment,
 } from '@mui/material';
 import { useTheme, alpha } from '@mui/material/styles';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
@@ -250,7 +250,6 @@ const ProductFormDialog = ({ open, onClose, onSave, product, loading }) => {
                               position: 'absolute', 
                               top: 4, 
                               right: 4, 
-                              minWidth: 'auto', 
                               p: 0.5,
                               borderRadius: '50%',
                               minWidth: 24,

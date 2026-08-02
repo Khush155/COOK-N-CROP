@@ -10,14 +10,15 @@
  */
 export const getImageUrl = (imagePath) => {
   if (!imagePath) return undefined;
-  
+
   // If already a full URL (OAuth avatars from Google, GitHub, LinkedIn)
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
     return imagePath;
   }
-  
+
   // Local upload - prepend API URL
-  return `${process.env.REACT_APP_API_URL}${imagePath}`;
+  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  return `${apiUrl}${imagePath}`;
 };
 
 /**
@@ -88,10 +89,10 @@ export const isValidMediaFile = (file) => {
  */
 export const formatFileSize = (bytes) => {
   if (bytes === 0) return '0 Bytes';
-  
+
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
+
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 };

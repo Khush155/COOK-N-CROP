@@ -54,6 +54,7 @@ import { formatDistanceToNow, format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import adminService from "../../services/adminService";
 import Loader from "../../custom_components/Loader";
+import { getAvatarUrl } from "../../utils/imageHelpers";
 
 // Enhanced Stat Card Component with better design
 const StatCard = ({
@@ -71,24 +72,22 @@ const StatCard = ({
     <Card
       elevation={0}
       sx={{
-        p: { xs: 1, sm: 1.5, md: 2.5 },
+        p: { xs: 1.5, sm: 2, md: 2.5 },
         display: "flex",
         alignItems: "center",
-        borderRadius: { xs: 1.5, sm: 2, md: 3 },
-        border: `1px solid ${theme.palette.divider}`,
+        borderRadius: { xs: 2, sm: 3, md: 4 },
+        border: `1px solid ${alpha(color, 0.2)}`,
         cursor: onClick ? "pointer" : "default",
-        transition: "all 0.3s ease",
-        "&:hover": onClick
-          ? {
-              transform: "translateY(-4px)",
-              boxShadow: 8,
-              borderColor: alpha(color, 0.3),
-            }
-          : {},
+        transition: "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+        boxShadow: `0 4px 20px -4px ${alpha(color, 0.12)}`,
+        "&:hover": {
+          transform: "translateY(-6px)",
+          boxShadow: `0 14px 28px -6px ${alpha(color, 0.25)}`,
+          borderColor: alpha(color, 0.45),
+        },
         height: "100%",
-        background: `linear-gradient(135deg, ${alpha(color, 0.05)} 0%, ${
-          theme.palette.background.paper
-        } 100%)`,
+        background: `linear-gradient(135deg, ${alpha(color, 0.08)} 0%, ${alpha(theme.palette.background.paper, 0.95)} 100%)`,
+        backdropFilter: "blur(12px)",
         position: "relative",
         overflow: "hidden",
         "&::before": {
@@ -97,25 +96,25 @@ const StatCard = ({
           top: 0,
           left: 0,
           right: 0,
-          height: { xs: 1.5, sm: 2, md: 4 },
-          background: `linear-gradient(90deg, ${color}, ${alpha(color, 0.5)})`,
+          height: { xs: 2, sm: 3, md: 4 },
+          background: `linear-gradient(90deg, ${color}, ${alpha(color, 0.3)})`,
         },
       }}
       onClick={onClick}
     >
       <Box
         sx={{
-          mr: { xs: 0.75, sm: 1, md: 2 },
-          p: { xs: 0.75, sm: 1, md: 1.5 },
-          borderRadius: "50%",
-          color: color,
-          backgroundColor: alpha(color, 0.15),
+          mr: { xs: 1, sm: 1.5, md: 2 },
+          p: { xs: 1, sm: 1.25, md: 1.75 },
+          borderRadius: { xs: 2.5, md: 3 },
+          color: "#fff",
+          background: `linear-gradient(135deg, ${color}, ${alpha(color, 0.8)})`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          minWidth: { xs: 32, sm: 40, md: 50 },
-          minHeight: { xs: 32, sm: 40, md: 50 },
-          boxShadow: `0 4px 8px ${alpha(color, 0.1)}`,
+          minWidth: { xs: 40, sm: 48, md: 54 },
+          minHeight: { xs: 40, sm: 48, md: 54 },
+          boxShadow: `0 6px 16px ${alpha(color, 0.35)}`,
           zIndex: 1,
         }}
       >
@@ -125,10 +124,11 @@ const StatCard = ({
         <Typography
           variant="h4"
           sx={{
-            fontWeight: "bold",
-            mb: { xs: 0.25, sm: 0.5 },
-            fontFamily: "inherit",
-            fontSize: { xs: "1.25rem", sm: "1.5rem", md: "2rem" },
+            fontWeight: 800,
+            mb: 0.25,
+            fontFamily: theme.typography.fontFamily,
+            fontSize: { xs: "1.35rem", sm: "1.65rem", md: "2.1rem" },
+            letterSpacing: "-0.02em",
           }}
         >
           {value}
@@ -136,34 +136,49 @@ const StatCard = ({
         <Typography
           color="text.secondary"
           sx={{
-            fontFamily: "inherit",
-            fontSize: { xs: "0.65rem", sm: "0.75rem", md: "0.875rem" },
-            mb: { xs: 0.5, sm: 1 },
+            fontFamily: theme.typography.fontFamily,
+            fontSize: { xs: "0.7rem", sm: "0.78rem", md: "0.875rem" },
+            fontWeight: 600,
+            mb: { xs: 0.5, sm: 0.75 },
           }}
         >
           {title}
         </Typography>
         {trend && (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <Box 
+            sx={{ 
+              display: "inline-flex", 
+              alignItems: "center", 
+              gap: 0.4,
+              px: 1,
+              py: 0.25,
+              borderRadius: 5,
+              bgcolor: trend === "up" ? alpha(theme.palette.success.main, 0.12) : alpha(theme.palette.error.main, 0.12),
+              border: `1px solid ${trend === "up" ? alpha(theme.palette.success.main, 0.25) : alpha(theme.palette.error.main, 0.25)}`,
+            }}
+          >
             {trend === "up" ? (
               <TrendingUpIcon
                 sx={{
-                  fontSize: { xs: 10, sm: 12, md: 16 },
+                  fontSize: { xs: 12, sm: 14 },
                   color: "success.main",
                 }}
               />
             ) : (
               <TrendingDownIcon
                 sx={{
-                  fontSize: { xs: 10, sm: 12, md: 16 },
+                  fontSize: { xs: 12, sm: 14 },
                   color: "error.main",
                 }}
               />
             )}
             <Typography
               variant="caption"
-              color={trend === "up" ? "success.main" : "error.main"}
-              sx={{ fontSize: { xs: "0.6rem", sm: "0.65rem", md: "0.75rem" } }}
+              sx={{
+                fontSize: { xs: "0.65rem", sm: "0.72rem" },
+                fontWeight: 700,
+                color: trend === "up" ? "success.main" : "error.main",
+              }}
             >
               {trendValue}
             </Typography>
@@ -173,12 +188,12 @@ const StatCard = ({
       <Box
         sx={{
           position: "absolute",
-          right: { xs: -10, sm: -20 },
-          bottom: { xs: -10, sm: -20 },
-          width: { xs: 40, sm: 80 },
-          height: { xs: 40, sm: 80 },
+          right: { xs: -15, sm: -25 },
+          bottom: { xs: -15, sm: -25 },
+          width: { xs: 60, sm: 100 },
+          height: { xs: 60, sm: 100 },
           borderRadius: "50%",
-          backgroundColor: alpha(color, 0.05),
+          backgroundColor: alpha(color, 0.06),
           zIndex: 0,
         }}
       />
@@ -224,51 +239,61 @@ const RecentOrdersTable = ({ orders, loading, navigate }) => {
   };
 
   return (
-    <TableContainer>
-      <Table size="small">
+    <TableContainer sx={{ borderRadius: 3, border: `1px solid ${alpha(theme.palette.divider, 0.6)}` }}>
+      <Table size="medium">
         <TableHead>
-          <TableRow>
+          <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.04) }}>
             <TableCell
               sx={{
-                fontWeight: "bold",
+                fontWeight: 700,
                 fontFamily: theme.typography.fontFamily,
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                fontSize: { xs: "0.75rem", sm: "0.85rem" },
+                color: "text.primary",
+                py: 1.5,
               }}
             >
               Order ID
             </TableCell>
             <TableCell
               sx={{
-                fontWeight: "bold",
+                fontWeight: 700,
                 fontFamily: theme.typography.fontFamily,
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                fontSize: { xs: "0.75rem", sm: "0.85rem" },
+                color: "text.primary",
+                py: 1.5,
               }}
             >
               User
             </TableCell>
             <TableCell
               sx={{
-                fontWeight: "bold",
+                fontWeight: 700,
                 fontFamily: theme.typography.fontFamily,
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                fontSize: { xs: "0.75rem", sm: "0.85rem" },
+                color: "text.primary",
+                py: 1.5,
               }}
             >
               Total
             </TableCell>
             <TableCell
               sx={{
-                fontWeight: "bold",
+                fontWeight: 700,
                 fontFamily: theme.typography.fontFamily,
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                fontSize: { xs: "0.75rem", sm: "0.85rem" },
+                color: "text.primary",
+                py: 1.5,
               }}
             >
               Status
             </TableCell>
             <TableCell
               sx={{
-                fontWeight: "bold",
+                fontWeight: 700,
                 fontFamily: theme.typography.fontFamily,
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                fontSize: { xs: "0.75rem", sm: "0.85rem" },
+                color: "text.primary",
+                py: 1.5,
               }}
             >
               Date
@@ -283,8 +308,9 @@ const RecentOrdersTable = ({ orders, loading, navigate }) => {
               onClick={() => navigate(`/order/${order._id}`)}
               sx={{
                 cursor: "pointer",
+                transition: "all 0.2s ease",
                 "&:hover": {
-                  backgroundColor: alpha(theme.palette.primary.main, 0.05),
+                  backgroundColor: alpha(theme.palette.primary.main, 0.06),
                 },
               }}
             >
@@ -306,6 +332,7 @@ const RecentOrdersTable = ({ orders, loading, navigate }) => {
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Avatar
+                    src={getAvatarUrl(order.user)}
                     sx={{
                       width: { xs: 20, sm: 24 },
                       height: { xs: 20, sm: 24 },
@@ -806,153 +833,190 @@ const AdminOverview = () => {
         minHeight: "100vh",
       }}
     >
-      {/* Header with refresh button */}
+      {/* Header with refresh and quick action buttons */}
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          mb: { xs: 2, sm: 3, md: 4 },
+          mb: { xs: 2.5, sm: 3.5, md: 4 },
           flexWrap: "wrap",
-          gap: 1,
+          gap: 2,
         }}
       >
-        <Box sx={{ flex: 1, minWidth: 200 }}>
-          <Typography
-            variant="h3"
-            sx={{
-              fontWeight: 800,
-              fontFamily: theme.typography.fontFamily,
-              mb: { xs: 0.5, sm: 1 },
-              fontSize: { xs: "1.75rem", sm: "2.5rem", md: "3rem" },
-            }}
-          >
-            Admin Dashboard
-          </Typography>
+        <Box sx={{ flex: 1, minWidth: 240 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}>
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 800,
+                fontFamily: theme.typography.fontFamily,
+                fontSize: { xs: "1.75rem", sm: "2.35rem", md: "2.75rem" },
+                letterSpacing: "-0.03em",
+                background: `linear-gradient(45deg, ${theme.palette.text.primary}, ${alpha(theme.palette.text.primary, 0.75)})`,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              Admin Dashboard
+            </Typography>
+            <Chip
+              label="REAL-TIME"
+              size="small"
+              sx={{
+                fontWeight: 800,
+                fontSize: "0.65rem",
+                letterSpacing: 0.8,
+                bgcolor: alpha(theme.palette.success.main, 0.15),
+                color: theme.palette.success.main,
+                border: `1px solid ${alpha(theme.palette.success.main, 0.3)}`,
+                px: 0.5,
+              }}
+            />
+          </Box>
           <Typography
             variant="body1"
             color="text.secondary"
             sx={{
               fontFamily: theme.typography.fontFamily,
-              fontSize: { xs: "0.875rem", sm: "1rem" },
+              fontSize: { xs: "0.85rem", sm: "0.95rem" },
+              fontWeight: 500,
             }}
           >
-            Key performance indicators for E-Commerce & Community
+            Key performance analytics & live platform controls for E-Commerce & Community
           </Typography>
         </Box>
-        <Tooltip title="Refresh Data">
-          <IconButton
-            onClick={fetchData}
-            disabled={refreshing}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<AddIcon />}
+            onClick={() => navigate("/admin/products")}
             sx={{
-              border: `1px solid ${theme.palette.divider}`,
-              borderRadius: { xs: 1.5, sm: 2 },
-              width: { xs: 40, sm: 48 },
-              height: { xs: 40, sm: 48 },
-              boxShadow: 2,
-              "&:hover": {
-                boxShadow: 4,
-                transform: "translateY(-2px)",
-              },
-              transition: "all 0.3s ease",
+              borderRadius: 2.5,
+              fontWeight: 700,
+              textTransform: "none",
+              px: 2,
+              py: 0.8,
+              fontFamily: theme.typography.fontFamily,
             }}
           >
-            <RefreshIcon
+            Add Product
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<AddIcon />}
+            onClick={() => navigate("/admin/orders/create")}
+            sx={{
+              borderRadius: 2.5,
+              fontWeight: 700,
+              textTransform: "none",
+              px: 2,
+              py: 0.8,
+              fontFamily: theme.typography.fontFamily,
+              background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+              boxShadow: `0 4px 14px ${alpha(theme.palette.primary.main, 0.35)}`,
+              "&:hover": {
+                transform: "translateY(-2px)",
+                boxShadow: `0 6px 20px ${alpha(theme.palette.primary.main, 0.45)}`,
+              },
+            }}
+          >
+            Create Order
+          </Button>
+          <Tooltip title="Refresh Dashboard Data">
+            <IconButton
+              onClick={fetchData}
+              disabled={refreshing}
               sx={{
-                animation: refreshing ? "spin 1s linear infinite" : "none",
-                fontSize: { xs: 20, sm: 24 },
+                border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                borderRadius: 2.5,
+                width: 44,
+                height: 44,
+                bgcolor: alpha(theme.palette.primary.main, 0.05),
+                boxShadow: `0 2px 8px ${alpha(theme.palette.primary.main, 0.1)}`,
+                "&:hover": {
+                  boxShadow: `0 4px 14px ${alpha(theme.palette.primary.main, 0.25)}`,
+                  transform: "scale(1.05)",
+                  bgcolor: alpha(theme.palette.primary.main, 0.12),
+                },
+                transition: "all 0.25s ease",
               }}
-            />
-          </IconButton>
-        </Tooltip>
+            >
+              <RefreshIcon
+                sx={{
+                  animation: refreshing ? "spin 1s linear infinite" : "none",
+                  fontSize: 22,
+                  color: theme.palette.primary.main,
+                }}
+              />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Box>
 
-      {/* Welcome Section */}
+      {/* Hero Welcome Banner */}
       <Card
         elevation={0}
         sx={{
-          p: { xs: 2, sm: 3 },
-          mb: { xs: 2, sm: 3, md: 4 },
-          borderRadius: { xs: 2, sm: 3, md: 4 },
-          border: `1px solid ${theme.palette.divider}`,
-          boxShadow: 4,
+          p: { xs: 2.5, sm: 3.5 },
+          mb: { xs: 3, sm: 4 },
+          borderRadius: { xs: 3, sm: 4 },
+          border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+          boxShadow: `0 8px 32px -4px ${alpha(theme.palette.primary.main, 0.1)}`,
           background: `linear-gradient(135deg, ${alpha(
             theme.palette.primary.main,
-            0.1
-          )} 0%, ${theme.palette.background.paper} 100%)`,
+            0.12
+          )} 0%, ${alpha(theme.palette.background.paper, 0.9)} 100%)`,
+          backdropFilter: "blur(16px)",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: { xs: 1, sm: 2 },
+            gap: { xs: 2, sm: 3 },
             flexWrap: "wrap",
           }}
         >
           <Avatar
             sx={{
-              width: { xs: 48, sm: 60 },
-              height: { xs: 48, sm: 60 },
-              bgcolor: theme.palette.primary.main,
-              boxShadow: 3,
+              width: { xs: 54, sm: 66 },
+              height: { xs: 54, sm: 66 },
+              background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+              color: "#fff",
+              fontWeight: 800,
+              fontSize: { xs: "1.3rem", sm: "1.6rem" },
+              boxShadow: `0 6px 18px ${alpha(theme.palette.primary.main, 0.4)}`,
             }}
           >
-            <PeopleIcon />
+            A
           </Avatar>
-          <Box sx={{ flex: 1, minWidth: { xs: 150, sm: 200 } }}>
+          <Box sx={{ flex: 1, minWidth: 220 }}>
             <Typography
               variant="h5"
               sx={{
-                fontWeight: "bold",
+                fontWeight: 800,
                 fontFamily: theme.typography.fontFamily,
-                fontSize: { xs: "1.25rem", sm: "1.5rem" },
+                mb: 0.5,
+                fontSize: { xs: "1.2rem", sm: "1.45rem" },
               }}
             >
-              Welcome back, Admin!
-            </Typography>
-            <Typography
-              variant="body1"
-              color="text.secondary"
-              sx={{
-                fontFamily: theme.typography.fontFamily,
-                mt: { xs: 0.25, sm: 0.5 },
-                fontSize: { xs: "0.875rem", sm: "1rem" },
-              }}
-            >
-              Here's what's happening with your store today
-            </Typography>
-          </Box>
-          <Box sx={{ textAlign: "right", minWidth: { xs: 150, sm: 200 } }}>
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: "bold",
-                fontFamily: theme.typography.fontFamily,
-                color: theme.palette.primary.main,
-                fontSize: { xs: "1.25rem", sm: "1.5rem", md: "2rem" },
-              }}
-            >
-              {new Date().toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              Welcome back, Admin 👋
             </Typography>
             <Typography
               variant="body2"
               color="text.secondary"
               sx={{
                 fontFamily: theme.typography.fontFamily,
-                mt: { xs: 0.25, sm: 0.5 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                fontWeight: 500,
+                fontSize: { xs: "0.82rem", sm: "0.9rem" },
               }}
             >
-              {new Date().toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+              System status is operating smoothly. Review your sales performance, user activity, and store analytics below.
             </Typography>
           </Box>
         </Box>

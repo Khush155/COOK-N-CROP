@@ -44,7 +44,6 @@ import {
   LocationOn as LocationOnIcon,
   Phone as PhoneIcon,
   Person as PersonIcon,
-  Label as LabelIcon,
   FilterList as FilterListIcon,
   Map as MapIcon,
   Business as BusinessIcon,

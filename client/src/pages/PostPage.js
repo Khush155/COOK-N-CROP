@@ -35,7 +35,7 @@ import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import {
   ThumbUp as ThumbUpIcon, ArrowBack as ArrowBackIcon, MoreVert as MoreVertIcon, Edit as EditIcon,
-  Delete as DeleteIcon, Report as ReportIcon, Bookmark as BookmarkIcon, BookmarkBorder as BookmarkBorderIcon, Gavel as GavelIcon,
+  Delete as DeleteIcon, Report as ReportIcon, Bookmark as BookmarkIcon, BookmarkBorder as BookmarkBorderIcon,
   Timer as TimerIcon, People as PeopleIcon, ShoppingCart as ShoppingCartIcon, Collections as CollectionsIcon,
   Share as ShareIcon
 } from '@mui/icons-material';

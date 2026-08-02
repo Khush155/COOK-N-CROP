@@ -286,22 +286,20 @@ router.post('/forgot-password', async (req, res) => {
 
   try {
       console.log('Sending password reset email to:', user.email);
-      await sendEmail({
+      const mailRes = await sendEmail({
         email: user.email,
         subject: 'Password Reset Request for Cook-N-Crop',
         message,
       });
 
-      // Only save the token if the email was sent successfully
+      // Always save token & return success response so user flow never breaks
       await user.save();
-      console.log('Password reset email sent successfully to:', user.email);
+      console.log('Password reset process finished for:', user.email, mailRes);
 
-      res.status(200).json({ success: true, message: 'If a user with that email exists, a password reset link has been sent.' });
+      res.status(200).json({ success: true, message: 'If a user with that email exists, a password reset link has been processed.' });
   } catch (err) {
-      console.error('Email sending error for:', user.email, err);
-      // Do not save the user with the reset token if email fails.
-      // This allows the user to try again without being locked out.
-      res.status(500).json({ success: false, message: 'Could not send password reset email. Please try again later.' });
+      console.error('Password reset error for:', user.email, err);
+      res.status(500).json({ success: false, message: 'Server error during password reset.' });
   }
 });
 

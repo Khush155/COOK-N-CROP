@@ -24,7 +24,7 @@ import {
   Drawer,
   useMediaQuery,
 } from "@mui/material";
-import { useTheme, alpha } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import {
   Add as AddIcon,
   Check as CheckIcon,

@@ -30,7 +30,6 @@ import {
   Block as BlockIcon,
   Search as SearchIcon,
   Person as PersonIcon,
-  CalendarToday as CalendarTodayIcon,
   Lock as LockIcon,
 } from '@mui/icons-material';
 import Loader from '../custom_components/Loader';

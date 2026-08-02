@@ -18,8 +18,7 @@ import {
   MenuItem,
   InputAdornment,
   alpha,
-  useMediaQuery,
-  useTheme
+  useMediaQuery
 } from '@mui/material';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';

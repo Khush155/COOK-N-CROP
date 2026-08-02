@@ -16,89 +16,117 @@ router.post('/', protect, async (req, res) => {
     try {
         const { orderItems, shippingAddress, couponCode, paymentMethod, deliveryTimeSlot, orderNotes, harvestCoinsUsed, harvestCoinsDiscount, deliveryCharge: passedDeliveryCharge } = req.body;
 
-        if (!orderItems || orderItems.length === 0) {
-            return res.status(400).json({ message: 'No order items' });
+        if (!orderItems || !Array.isArray(orderItems) || orderItems.length === 0) {
+            return res.status(400).json({ message: 'No order items provided.' });
         }
 
-        // 1. Get product details from the database to ensure data integrity
+        // Helper to extract clean string ID from product reference
+        const getRawId = (p) => {
+            if (!p) return null;
+            if (typeof p === 'string') return p;
+            if (typeof p === 'object') return p._id ? p._id.toString() : (p.id ? p.id.toString() : null);
+            return String(p);
+        };
+
+        // Clean & validate incoming product IDs
+        const cleanedOrderItems = orderItems
+            .map(item => ({
+                ...item,
+                product: getRawId(item.product),
+                qty: Number(item.qty || item.quantity || 1)
+            }))
+            .filter(item => item.product && mongoose.Types.ObjectId.isValid(item.product));
+
+        if (cleanedOrderItems.length === 0) {
+            return res.status(400).json({ message: 'Invalid product details in order.' });
+        }
+
+        // 1. Fetch products from database
         const itemsFromDB = await Product.find({
-            _id: { $in: orderItems.map((x) => x.product) },
+            _id: { $in: cleanedOrderItems.map((x) => x.product) },
         });
 
-        // 2. Map client items to DB items and check for invalid products
-        const dbOrderItems = orderItems.map((itemFromClient) => {
+        // 2. Map items and verify stock
+        const dbOrderItems = cleanedOrderItems.map((itemFromClient) => {
             const matchingItemFromDB = itemsFromDB.find((item) => item._id.toString() === itemFromClient.product);
-            if (!matchingItemFromDB) throw new Error(`Product not found: ${itemFromClient.product}`);
-            if (matchingItemFromDB.countInStock < itemFromClient.qty) {
-                const err = new Error(`Not enough stock for ${matchingItemFromDB.name}. Only ${matchingItemFromDB.countInStock} left.`);
+            if (!matchingItemFromDB) {
+                throw new Error(`Product not found or unavailable.`);
+            }
+
+            // Check stock if product has positive stock limit configured
+            if (typeof matchingItemFromDB.countInStock === 'number' && matchingItemFromDB.countInStock > 0 && matchingItemFromDB.countInStock < itemFromClient.qty) {
+                const err = new Error(`Not enough stock for ${matchingItemFromDB.name}. Only ${matchingItemFromDB.countInStock} available.`);
                 err.statusCode = 400;
                 throw err;
             }
-            
-            // Handle both single image and images array for backward compatibility
-            const image = matchingItemFromDB.images && matchingItemFromDB.images.length > 0 
+
+            const image = (matchingItemFromDB.images && matchingItemFromDB.images.length > 0 && matchingItemFromDB.images[0])
                 ? matchingItemFromDB.images[0] 
-                : matchingItemFromDB.image || '';
+                : (matchingItemFromDB.image || '/images/placeholder.png');
 
             return {
                 name: matchingItemFromDB.name, 
                 qty: itemFromClient.qty, 
-                image: image, // Use first image or fallback to single image
-                images: matchingItemFromDB.images || [], // Include all images
-                unit: matchingItemFromDB.unit,
-                price: matchingItemFromDB.salePrice || matchingItemFromDB.price, // Use salePrice if available
-                product: itemFromClient.product
+                image: image,
+                images: matchingItemFromDB.images || [],
+                unit: matchingItemFromDB.unit || '',
+                price: matchingItemFromDB.salePrice || matchingItemFromDB.price || 0,
+                product: matchingItemFromDB._id
             };
         });
 
-        // 3. Calculate total price on the server
+        // 3. Calculate financial totals
         const subtotal = dbOrderItems.reduce(
             (acc, item) => acc + item.price * item.qty,
             0
         );
 
-        // Use passed delivery charge or calculate if not provided
         const deliveryCharge = passedDeliveryCharge !== undefined 
-            ? passedDeliveryCharge 
+            ? Number(passedDeliveryCharge) 
             : (subtotal < 200 ? 40 : 0);
 
         let discountAmount = 0;
         let finalPrice = subtotal + deliveryCharge;
         
-        // Apply Harvest Coins discount
         if (harvestCoinsDiscount && harvestCoinsDiscount > 0) {
-            finalPrice -= harvestCoinsDiscount;
+            finalPrice -= Number(harvestCoinsDiscount);
         }
 
         let appliedCoupon = null;
 
         if (couponCode) {
-            const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
-            // Re-validate coupon on the server
-            if (!coupon || !coupon.isActive || coupon.expiresAt < new Date() || (coupon.usageLimit !== null && coupon.timesUsed >= coupon.usageLimit) || subtotal < coupon.minPurchase) {
-                return res.status(400).json({ message: 'The provided coupon is invalid or expired.' });
+            const coupon = await Coupon.findOne({ code: String(couponCode).toUpperCase() });
+            if (coupon && coupon.isActive && (coupon.expiresAt > new Date()) && (coupon.usageLimit === null || coupon.timesUsed < coupon.usageLimit) && subtotal >= coupon.minPurchase) {
+                if (coupon.discountType === 'percentage') {
+                    discountAmount = (subtotal * coupon.discountValue) / 100;
+                } else {
+                    discountAmount = coupon.discountValue;
+                }
+                discountAmount = Math.min(discountAmount, subtotal);
+                finalPrice = subtotal + deliveryCharge - discountAmount - (harvestCoinsDiscount || 0);
+                appliedCoupon = coupon;
             }
-
-            if (coupon.discountType === 'percentage') {
-                discountAmount = (subtotal * coupon.discountValue) / 100;
-            } else {
-                discountAmount = coupon.discountValue;
-            }
-            discountAmount = Math.min(discountAmount, subtotal);
-            finalPrice = subtotal + deliveryCharge - discountAmount - (harvestCoinsDiscount || 0);
-            appliedCoupon = coupon;
         }
 
-        // Ensure final price doesn't go below zero
         finalPrice = Math.max(0, finalPrice);
-
         const isPaid = paymentMethod !== 'COD';
+
+        // Sanitize shipping address to ensure all required fields are present
+        const safeShippingAddress = {
+            fullName: shippingAddress?.fullName || req.user?.username || 'Customer',
+            street: shippingAddress?.street || shippingAddress?.address || 'Standard Address',
+            city: shippingAddress?.city || 'City',
+            state: shippingAddress?.state || 'State',
+            zipCode: String(shippingAddress?.zipCode || shippingAddress?.postalCode || '110001'),
+            country: shippingAddress?.country || 'India',
+            phone: String(shippingAddress?.phone || '9876543210'),
+        };
 
         const order = new Order({
             user: req.user._id,
             orderItems: dbOrderItems,
-            shippingAddress,
-            paymentMethod,
+            shippingAddress: safeShippingAddress,
+            paymentMethod: paymentMethod || 'COD',
             subtotal: subtotal,
             deliveryCharge: deliveryCharge,
             discount: {
@@ -118,116 +146,34 @@ router.post('/', protect, async (req, res) => {
 
         const createdOrder = await order.save();
 
-        // Update user's activity stats
-        await User.findByIdAndUpdate(req.user._id, {
+        // Safe background operations (non-blocking)
+        if (appliedCoupon) {
+            Coupon.findByIdAndUpdate(appliedCoupon._id, { $inc: { timesUsed: 1 } }).catch(() => {});
+        }
+
+        User.findByIdAndUpdate(req.user._id, {
             $inc: {
                 'activity.totalOrders': 1,
                 'activity.totalSpent': finalPrice
             }
-        });
+        }).catch(() => {});
 
-        // If a coupon was successfully applied, increment its usage count
-        if (appliedCoupon) {
-            appliedCoupon.timesUsed += 1;
-            await appliedCoupon.save();
-        }
-
-        // 4. Update stock count for each item in the order
-        const updateStockPromises = createdOrder.orderItems.map(async (item) => {
-            return Product.findByIdAndUpdate(item.product, {
+        createdOrder.orderItems.forEach((item) => {
+            Product.findByIdAndUpdate(item.product, {
                 $inc: { countInStock: -item.qty }
-            });
+            }).catch(() => {});
         });
-        await Promise.all(updateStockPromises);
 
-        // 5. Send order confirmation email
-        try {
-            const itemRows = createdOrder.orderItems.map(item => `
-                <tr style="border-bottom: 1px solid #eaeaea;">
-                    <td style="padding: 15px; vertical-align: middle;">${item.name}</td>
-                    <td style="padding: 15px; vertical-align: middle; text-align: center;">${item.qty}</td>
-                    <td style="padding: 15px; vertical-align: middle; text-align: right;">₹${item.price.toFixed(2)}</td>
-                    <td style="padding: 15px; vertical-align: middle; text-align: right;">₹${(item.qty * item.price).toFixed(2)}</td>
-                </tr>
-            `).join('');
+        awardHarvestCoins(req.user._id, finalPrice).catch(() => {});
 
-            let summaryRows = '';
-            if (createdOrder.deliveryCharge > 0) {
-                summaryRows += `
-                    <tr>
-                        <td colspan="3" style="text-align: right; padding: 5px 0;">Delivery Charge:</td>
-                        <td style="text-align: right; padding: 5px 0;">₹${createdOrder.deliveryCharge.toFixed(2)}</td>
-                    </tr>
-                `;
-            }
-            
-            if (createdOrder.harvestCoinsDiscount > 0) {
-                summaryRows += `
-                    <tr>
-                        <td colspan="3" style="text-align: right; padding: 5px 0; color: #28a745;">Harvest Coins Discount:</td>
-                        <td style="text-align: right; padding: 5px 0; color: #28a745;">-₹${createdOrder.harvestCoinsDiscount.toFixed(2)}</td>
-                    </tr>
-                `;
-            }
-            
-            if (createdOrder.discount.amount > 0) {
-                summaryRows += `
-                    <tr>
-                        <td colspan="3" style="text-align: right; padding: 5px 0; color: #28a745;">Discount (${createdOrder.discount.code}):</td>
-                        <td style="text-align: right; padding: 5px 0; color: #28a745;">-₹${createdOrder.discount.amount.toFixed(2)}</td>
-                    </tr>
-                `;
-            }
+        // Non-blocking order confirmation email (fire & forget, never blocks HTTP response)
+        sendEmail({
+            email: req.user.email,
+            subject: `Your Cook-N-Crop Order #${createdOrder._id.toString().slice(-6)}`,
+            message: `<p>Thank you for your order #${createdOrder._id.toString().slice(-6)}! Total: ₹${createdOrder.totalPrice.toFixed(2)}</p>`
+        }).catch((err) => console.log('Non-blocking email send skipped/failed:', err.message));
 
-            const message = `
-              <div style="background-color: #f4f4f7; padding: 20px; font-family: Arial, sans-serif;">
-                <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                  <div style="background-color: #800000; color: white; padding: 20px 30px; text-align: center; border-radius: 8px 8px 0 0;">
-                    <h1 style="margin: 0; font-size: 28px; font-family: 'Cinzel', serif;">Thank You For Your Order!</h1>
-                  </div>
-                  <div style="padding: 30px 40px; color: #333; line-height: 1.6;">
-                    <h2 style="color: #333333; font-weight: 600;">Hi ${req.user.username},</h2>
-                    <p>We've received your order #${createdOrder._id.toString().slice(-6)} and are getting it ready. Here's a summary of your purchase:</p>
-                    <table style="width: 100%; border-collapse: collapse; margin: 25px 0;">
-                      <thead>
-                        <tr style="background-color: #f9f9f9;">
-                          <th style="padding: 12px; border-bottom: 2px solid #eaeaea; text-align: left;">Item</th>
-                          <th style="padding: 12px; border-bottom: 2px solid #eaeaea; text-align: center;">Quantity</th>
-                          <th style="padding: 12px; border-bottom: 2px solid #eaeaea; text-align: right;">Price</th>
-                          <th style="padding: 12px; border-bottom: 2px solid #eaeaea; text-align: right;">Total</th>
-                        </tr>
-                      </thead>
-                      <tbody>${itemRows}</tbody>
-                    </table>
-                    <table style="width: 100%; margin-top: 20px;">
-                      <tbody>
-                        <tr>
-                            <td colspan="3" style="text-align: right; padding: 5px 0;">Subtotal:</td>
-                            <td style="text-align: right; padding: 5px 0;">₹${createdOrder.subtotal.toFixed(2)}</td>
-                        </tr>
-                        ${summaryRows}
-                        <tr>
-                          <td colspan="3" style="text-align: right; padding: 10px 0; font-weight: bold; border-top: 2px solid #333;">Grand Total:</td>
-                          <td style="text-align: right; padding: 10px 0; font-weight: bold; border-top: 2px solid #333;">₹${createdOrder.totalPrice.toFixed(2)}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                    <div style="text-align: center; margin: 40px 0;">
-                      <a href="${process.env.CLIENT_URL}/order/${createdOrder._id}" style="background-color: #e8eb14; color: #333; padding: 14px 28px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; border: 2px solid #d7d911;">View Your Order</a>
-                    </div>
-                  </div>
-                  <div style="background-color: #fafafa; color: #777; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px; border-top: 1px solid #eaeaea;">
-                    <p style="margin: 0;">&copy; ${new Date().getFullYear()} Cook'N'Crop. All rights reserved.</p>
-                  </div>
-                </div>
-              </div>
-            `;
-            await sendEmail({ email: req.user.email, subject: `Your Cook-N-Crop Order #${createdOrder._id.toString().slice(-6)}`, message });
-        } catch (emailError) {
-            console.error('Could not send order confirmation email:', emailError);
-        }
-
-        // Emit real-time event to admins
+        // Real-time Socket notify admins
         const io = req.app.get('io');
         if (io) {
             io.to('admin_room').emit('new_activity', {
@@ -238,16 +184,9 @@ router.post('/', protect, async (req, res) => {
             });
         }
 
-        // Award Harvest Coins to the user (admins can also earn points)
-        const loyaltyResult = await awardHarvestCoins(req.user._id, finalPrice);
-        if (!loyaltyResult.success) {
-          console.error('Failed to award Harvest Coins:', loyaltyResult.error);
-        }
-
         res.status(201).json(createdOrder);
     } catch (error) {
         console.error('Order creation error:', error);
-        // If we threw a custom status code, use it. Otherwise, default to 500.
         res.status(error.statusCode || 500).json({ message: error.message || 'Server Error creating order' });
     }
 });
@@ -423,7 +362,7 @@ router.get('/', protect, authorize('admin'), async (req, res) => {
       .sort({ createdAt: -1 }) // Show newest orders first
       .limit(pageSize)
       .skip(pageSize * (page - 1))
-      .populate('user', 'id username');
+      .populate('user', 'id username profilePic email');
 
     res.json({ orders, page, pages: Math.ceil(count / pageSize) });
   } catch (error) {
@@ -436,36 +375,50 @@ router.get('/', protect, authorize('admin'), async (req, res) => {
 // @route   GET /api/orders/myorders
 // @access  Private
 router.get('/myorders', protect, async (req, res) => {
+  try {
     const orders = await Order.find({ user: req.user._id })
-        .sort({ createdAt: -1 })
-        .populate({
-            path: 'orderItems.product',
-            select: 'name image reviews' // Select fields needed for review check
-        });
+      .sort({ createdAt: -1 })
+      .populate({
+        path: 'orderItems.product',
+        select: 'name image reviews' // Select fields needed for review check
+      });
     res.json(orders);
+  } catch (error) {
+    console.error('Get my orders error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
 });
 
 // @desc    Get order by ID
 // @route   GET /api/orders/:id
 // @access  Private
 router.get('/:id', protect, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid order ID' });
+    }
+
     const order = await Order.findById(req.params.id)
-        .populate('user', 'username email')
-        .populate({
-            path: 'orderItems.product',
-            select: 'name image reviews'
-        });
+      .populate('user', 'username email')
+      .populate({
+        path: 'orderItems.product',
+        select: 'name image reviews'
+      });
 
     if (!order) {
-        return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: 'Order not found' });
     }
 
     // Security Check: Ensure the logged-in user is the owner of the order or an admin
     if (order.user._id.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
-        return res.status(401).json({ message: 'Not authorized to view this order' });
+      return res.status(401).json({ message: 'Not authorized to view this order' });
     }
 
     res.json(order);
+  } catch (error) {
+    console.error('Get order by ID error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
 });
 
 // @desc    Update order to paid
@@ -496,32 +449,9 @@ router.put('/:id/pay', protect, authorize('admin'), async (req, res) => { // Thi
 
       const updatedOrder = await order.save();
 
-      // Send email notification
-      try {
-        const orderUrl = `${process.env.CLIENT_URL}/order/${order._id}`;
-        const message = `
-          <div style="background-color: #f4f4f7; padding: 20px; font-family: Arial, sans-serif;">
-            <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-              <div style="background-color: #800000; color: white; padding: 20px 30px; text-align: center; border-radius: 8px 8px 0 0;">
-                <h1 style="margin: 0; font-size: 28px; font-family: 'Cinzel', serif;">Your Order Status has Updated</h1>
-              </div>
-              <div style="padding: 30px 40px; color: #333; line-height: 1.6;">
-                <h2 style="color: #333333; font-weight: 600;">Hi ${order.user.username},</h2>
-                <p>The status of your order #${order._id.toString().slice(-6)} has been updated to: <strong>${order.status}</strong>.</p>
-                <p>Thank you for shopping with Cook-N-Crop!</p>
-                <div style="text-align: center; margin: 40px 0;">
-                  <a href="${orderUrl}" style="background-color: #e8eb14; color: #333; padding: 14px 28px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; border: 2px solid #d7d911;">View Your Order</a>
-                </div>
-              </div>
-              <div style="background-color: #fafafa; color: #777; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px; border-top: 1px solid #eaeaea;">
-                <p style="margin: 0;">&copy; ${new Date().getFullYear()} Cook'N'Crop. All rights reserved.</p>
-              </div>
-            </div>
-          </div>
-        `;
-        await sendEmail({ email: order.user.email, subject: `Your Cook-N-Crop Order #${order._id} is Processing`, message });
-      } catch (emailError) {
-        console.error(`Could not send order payment email for order ${order._id}:`, emailError);
+      // Send non-blocking email notification
+      if (order.user && order.user.email) {
+        sendEmail({ email: order.user.email, subject: `Your Cook-N-Crop Order #${order._id} is Processing`, message: `<p>Your order #${order._id} status is now Processing.</p>` }).catch(() => {});
       }
 
       res.json(updatedOrder);
@@ -558,31 +488,9 @@ router.put('/:id/deliver', protect, authorize('admin'), async (req, res) => { //
 
       const updatedOrder = await order.save();
 
-      // Send email notification
-      try {
-        const orderUrl = `${process.env.CLIENT_URL}/order/${order._id}`;
-        const message = `
-          <div style="background-color: #f4f4f7; padding: 20px; font-family: Arial, sans-serif;">
-            <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-              <div style="background-color: #800000; color: white; padding: 20px 30px; text-align: center; border-radius: 8px 8px 0 0;">
-                <h1 style="margin: 0; font-size: 28px; font-family: 'Cinzel', serif;">Your Order Has Been Delivered!</h1>
-              </div>
-              <div style="padding: 30px 40px; color: #333; line-height: 1.6;">
-                <h2 style="color: #333333; font-weight: 600;">Hi ${order.user.username},</h2>
-                <p>Great news! Your order #${order._id.toString().slice(-6)} has been delivered. We hope you enjoy your fresh products!</p>
-                <div style="text-align: center; margin: 40px 0;">
-                  <a href="${orderUrl}" style="background-color: #e8eb14; color: #333; padding: 14px 28px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; border: 2px solid #d7d911;">View Your Order</a>
-                </div>
-              </div>
-              <div style="background-color: #fafafa; color: #777; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px; border-top: 1px solid #eaeaea;">
-                <p style="margin: 0;">&copy; ${new Date().getFullYear()} Cook'N'Crop. All rights reserved.</p>
-              </div>
-            </div>
-          </div>
-        `;
-        await sendEmail({ email: order.user.email, subject: `Your Cook-N-Crop Order #${order._id} Has Been Delivered`, message });
-      } catch (emailError) {
-        console.error(`Could not send order delivery email for order ${order._id}:`, emailError);
+      // Send non-blocking email notification
+      if (order.user && order.user.email) {
+        sendEmail({ email: order.user.email, subject: `Your Cook-N-Crop Order #${order._id} Has Been Delivered`, message: `<p>Your order #${order._id} has been delivered.</p>` }).catch(() => {});
       }
 
       res.json(updatedOrder);
@@ -662,38 +570,36 @@ router.put('/:id/status', protect, authorize('admin'), async (req, res) => {
 
         const updatedOrder = await order.save();
 
-        // Send email notification if status changed and user has an email
+        // Send non-blocking status email notification
         if (oldStatus !== status && order.user && order.user.email) {
-            try {
-                const orderUrl = `${process.env.CLIENT_URL}/order/${order._id}`;
-                const message = `
-                  <div style="background-color: #f4f4f7; padding: 20px; font-family: Arial, sans-serif;">
-                    <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                      <div style="background-color: #800000; color: white; padding: 20px 30px; text-align: center; border-radius: 8px 8px 0 0;">
-                        <h1 style="margin: 0; font-size: 28px; font-family: 'Cinzel', serif;">Your Order Status has Updated</h1>
-                      </div>
-                      <div style="padding: 30px 40px; color: #333; line-height: 1.6;">
-                        <h2 style="color: #333333; font-weight: 600;">Hi ${order.user.username},</h2>
-                        <p>The status of your order #${order._id.toString().slice(-6)} has been updated to: <strong>${status}</strong>.</p>
-                        <p>Thank you for shopping with Cook-N-Crop!</p>
-                        <div style="text-align: center; margin: 40px 0;">
-                          <a href="${orderUrl}" style="background-color: #e8eb14; color: #333; padding: 14px 28px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; border: 2px solid #d7d911;">View Your Order</a>
-                        </div>
-                      </div>
-                      <div style="background-color: #fafafa; color: #777; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px; border-top: 1px solid #eaeaea;">
-                        <p style="margin: 0;">&copy; ${new Date().getFullYear()} Cook'N'Crop. All rights reserved.</p>
-                      </div>
+            const orderUrl = `${process.env.CLIENT_URL}/order/${order._id}`;
+            const message = `
+              <div style="background-color: #f4f4f7; padding: 20px; font-family: Arial, sans-serif;">
+                <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                  <div style="background-color: #800000; color: white; padding: 20px 30px; text-align: center; border-radius: 8px 8px 0 0;">
+                    <h1 style="margin: 0; font-size: 28px; font-family: 'Cinzel', serif;">Your Order Status has Updated</h1>
+                  </div>
+                  <div style="padding: 30px 40px; color: #333; line-height: 1.6;">
+                    <h2 style="color: #333333; font-weight: 600;">Hi ${order.user.username},</h2>
+                    <p>The status of your order #${order._id.toString().slice(-6)} has been updated to: <strong>${status}</strong>.</p>
+                    <p>Thank you for shopping with Cook-N-Crop!</p>
+                    <div style="text-align: center; margin: 40px 0;">
+                      <a href="${orderUrl}" style="background-color: #e8eb14; color: #333; padding: 14px 28px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 16px; border: 2px solid #d7d911;">View Your Order</a>
                     </div>
                   </div>
-                `;
-                await sendEmail({
-                    email: order.user.email,
-                    subject: `Update on your Cook-N-Crop Order #${order._id}`,
-                    message
-                });
-            } catch (emailError) {
-                console.error(`Could not send status update email for order ${order._id}:`, emailError);
-            }
+                  <div style="background-color: #fafafa; color: #777; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px; border-top: 1px solid #eaeaea;">
+                    <p style="margin: 0;">&copy; ${new Date().getFullYear()} Cook'N'Crop. All rights reserved.</p>
+                  </div>
+                </div>
+              </div>
+            `;
+            sendEmail({
+                email: order.user.email,
+                subject: `Update on your Cook-N-Crop Order #${order._id}`,
+                message
+            }).catch((emailError) => {
+                console.log(`Non-blocking status update email skipped/failed:`, emailError.message);
+            });
         }
 
         res.json(updatedOrder);

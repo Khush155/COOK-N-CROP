@@ -7,7 +7,7 @@ const rateLimit = require('express-rate-limit');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const path = require('path');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 // Import database connection
 const connectDB = require('./config/database');
@@ -31,7 +31,6 @@ const groupRoutes = require('./routes/groups'); // New
 const collectionRoutes = require('./routes/collections');
 const messageRoutes = require('./routes/messages'); // New: Import message routes
 const searchRoutes = require('./routes/search'); // New: Import search routes
-const chatbotRoutes = require('./routes/chatbot'); // New: Import chatbot routes
 const supportRoutes = require('./routes/support'); // New: Import support routes
 const loyaltyRoutes = require('./routes/loyaltyRoutes'); // New: Import loyalty routes
 const offerRoutes = require('./routes/offerRoutes'); // New: Import offer routes
@@ -56,12 +55,12 @@ let messageReactions = {}; // Store message reactions
 // Periodic cleanup of stale connections (every 5 minutes)
 setInterval(() => {
   const activeSocketIds = new Set();
-  
+
   // Get all currently connected socket IDs
   io.sockets.sockets.forEach(socket => {
     activeSocketIds.add(socket.id);
   });
-  
+
   // Remove users whose socket IDs are no longer active
   Object.keys(onlineUsers).forEach(userId => {
     if (!activeSocketIds.has(onlineUsers[userId])) {
@@ -87,12 +86,12 @@ io.on("connection", (socket) => {
   // Handle message reactions
   socket.on('add_reaction', (data) => {
     const { messageId, reaction, conversationId, userId } = data;
-    
+
     // Initialize reactions for this message if not exists
     if (!messageReactions[messageId]) {
       messageReactions[messageId] = {};
     }
-    
+
     // Toggle reaction - if user already reacted with same emoji, remove it
     if (messageReactions[messageId][userId] === reaction) {
       delete messageReactions[messageId][userId];
@@ -100,7 +99,7 @@ io.on("connection", (socket) => {
       // Otherwise, set the new reaction
       messageReactions[messageId][userId] = reaction;
     }
-    
+
     // Broadcast the reaction update to all users in the conversation
     socket.to(conversationId).emit('message_reaction', {
       messageId,
@@ -113,10 +112,10 @@ io.on("connection", (socket) => {
   // Handle request for message reactions
   socket.on('request_message_reactions', (data) => {
     const { conversationId, messageIds } = data;
-    
+
     // Join the conversation room
     socket.join(conversationId);
-    
+
     // Send reactions for all requested messages
     const reactionsData = {};
     messageIds.forEach(messageId => {
@@ -124,7 +123,7 @@ io.on("connection", (socket) => {
         reactionsData[messageId] = messageReactions[messageId];
       }
     });
-    
+
     socket.emit('message_reactions_response', {
       conversationId,
       reactions: reactionsData
@@ -244,7 +243,6 @@ app.use('/api/admin', adminRoutes); // New: Use admin routes
 app.use('/api/notifications', notificationRoutes); // New: Use notification routes
 app.use('/api/messages', messageRoutes); // New: Use message routes
 app.use('/api/search', searchRoutes); // New: Use search routes
-app.use('/api/chatbot', chatbotRoutes); // New: Use chatbot routes
 app.use('/api/support', supportRoutes); // New: Use support routes
 app.use('/api/loyalty', loyaltyRoutes); // New: Use loyalty routes
 app.use('/api/offers', offerRoutes); // New: Use offer routes
@@ -264,7 +262,7 @@ app.get('/api/health', (req, res) => {
 // This block MUST come after all API routes.
 if (process.env.NODE_ENV === 'production') {
   const clientBuildPath = path.join(__dirname, '../client/build');
-  
+
   // Serve user-uploaded content from server/public/uploads
   app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
@@ -288,10 +286,10 @@ if (process.env.NODE_ENV === 'production') {
 // Custom 404 handler for any API routes that don't exist
 // This will only be hit if a request starts with /api/ but doesn't match any route
 app.use('/api/*', (req, res) => {
-    res.status(404).json({
-        success: false,
-        message: `API route not found: ${req.originalUrl}`
-    });
+  res.status(404).json({
+    success: false,
+    message: `API route not found: ${req.originalUrl}`
+  });
 });
 
 // Global error handler
@@ -350,13 +348,13 @@ const startServer = async () => {
   } catch (error) {
     console.error('❌ --- FAILED TO START SERVER --- ❌');
     if (error.message.includes('ETIMEDOUT') || error.message.includes('whitelist')) {
-        console.error('DATABASE CONNECTION FAILED: The connection to MongoDB timed out.');
-        console.error('This is almost always a network or firewall issue. Please check the following:');
-        console.error('1. MongoDB Atlas IP Access List: Your current IP address might not be whitelisted. This is the #1 most common cause.');
-        console.error('2. .env File: Ensure your MONGODB_URI is correct and has the right password.');
-        console.error('3. Local Firewall/VPN: Your network might be blocking the connection to the database port.');
+      console.error('DATABASE CONNECTION FAILED: The connection to MongoDB timed out.');
+      console.error('This is almost always a network or firewall issue. Please check the following:');
+      console.error('1. MongoDB Atlas IP Access List: Your current IP address might not be whitelisted. This is the #1 most common cause.');
+      console.error('2. .env File: Ensure your MONGODB_URI is correct and has the right password.');
+      console.error('3. Local Firewall/VPN: Your network might be blocking the connection to the database port.');
     } else {
-        console.error('An unexpected error occurred:', error);
+      console.error('An unexpected error occurred:', error);
     }
     process.exit(1);
   }

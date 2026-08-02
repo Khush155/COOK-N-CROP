@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import {
   Box, Container, Typography, Alert, Paper, Grid, Avatar, Stack, alpha, Snackbar,
-  Button, Chip, Divider, TextField, InputAdornment, ToggleButtonGroup, ToggleButton, Pagination,
-  Card, CardContent, CardActions, IconButton, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions,
+  Button, Chip, Divider, TextField, InputAdornment, ToggleButtonGroup, ToggleButton, Pagination, IconButton, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions,
   useMediaQuery // Add this import
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';

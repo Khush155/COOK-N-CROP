@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
   Box,
@@ -89,6 +89,7 @@ const CreatePostForm = ({ onSubmit, onCancel, loading, forceRecipe, initialData 
       }
     };
     fetchUserGroups();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state]);
 
   const handleGroupChange = (e) => {
@@ -139,7 +140,7 @@ const CreatePostForm = ({ onSubmit, onCancel, loading, forceRecipe, initialData 
       setPreviews(initialData.media?.map(m => ({ url: getImageUrl(m.url), type: m.mediaType })) || []);
       setFiles([]);
     }
-  }, [forceRecipe, initialData, userGroups]); // Add userGroups to dependency array
+  }, [forceRecipe, initialData, userGroups]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -166,7 +167,7 @@ const CreatePostForm = ({ onSubmit, onCancel, loading, forceRecipe, initialData 
     }
 
     // Extract hashtags from content and add them as tags
-    const hashtagRegex = /#([a-zA-Z0-9_]{2,50})/g;
+    const hashtagRegex = /#([a-zA-Z0-9_]{2,50})\s/g;
     const hashtags = [];
     let match;
     while ((match = hashtagRegex.exec(content)) !== null) {

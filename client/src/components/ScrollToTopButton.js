@@ -37,7 +37,7 @@ const ScrollToTopButton = () => {
         role="presentation"
         sx={{
           position: 'fixed',
-          bottom: theme.spacing(14), // Positioned above the chatbot button (4 + 8 + 2)
+          bottom: theme.spacing(4),
           right: theme.spacing(4),
           zIndex: theme.zIndex.tooltip,
           display: { xs: 'none', sm: 'block' } // Hide on mobile

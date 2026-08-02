@@ -64,7 +64,12 @@ const awardHarvestCoins = async (userId, orderTotal) => {
       throw new Error('User not found');
     }
     
-    // Remove the 10 orders enrollment requirement - all users can earn Harvest Coins
+    // Ensure activity object and sub-properties exist before mutating
+    if (!user.activity) user.activity = {};
+    if (typeof user.activity.harvestCoins !== 'number') user.activity.harvestCoins = 0;
+    if (typeof user.activity.totalSpent !== 'number') user.activity.totalSpent = 0;
+    if (typeof user.activity.totalOrders !== 'number') user.activity.totalOrders = 0;
+
     user.activity.harvestCoins += coinsToAward;
     user.activity.totalSpent += orderTotal;
     user.activity.totalOrders += 1;

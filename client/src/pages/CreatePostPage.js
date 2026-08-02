@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Box, Container, Typography, Paper, Snackbar, Alert, alpha } from '@mui/material';
+import { Container, Typography, Paper, Snackbar, Alert, alpha } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import CreatePostForm from '../components/CreatePostForm';
 import communityService from '../services/communityService';
